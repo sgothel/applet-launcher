@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.2 $
- * $Date: 2007/06/14 23:39:17 $
+ * $Revision: 1.3 $
+ * $Date: 2007/06/14 23:43:14 $
  * $State: Exp $
  */
 
@@ -130,6 +130,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * <p>
  * TODO: List the Java 3D, JOGL, and JOAL jar files here.
  *
+ * <p>
  * Sample applet code:
  * <pre>
  * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
