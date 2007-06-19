@@ -40,8 +40,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.2 $
- * $Date: 2007/06/19 20:11:34 $
+ * $Revision: 1.3 $
+ * $Date: 2007/06/19 20:37:39 $
  * $State: Exp $
  */
  -->
@@ -63,9 +63,9 @@
     <!-- Compile the java code from ${src} into ${build}/classes -->
     <javac srcdir="${src}"
            destdir="${build}/classes"
-	   source="1.5"
-	   target="1.5"
-	   debug="true"
+           source="1.5"
+           target="1.5"
+           debug="true"
            deprecation="true"/>
 
     <!-- Copy LICENSE and COPYRIGHT files to build -->   
@@ -73,20 +73,33 @@
         <fileset dir="${topdir}"
                  includes ="COPYRIGHT.txt LICENSE*.txt"/>
     </copy>
-    
+
   </target>
 
   <target name="jar" depends="init,compile">
     <!-- Create the dist directory -->
     <mkdir dir="${dist}"/>
-    
+
     <!-- Create the jar file -->
     <jar jarfile="${output.jar}"
          manifest="manifest.mf"
          update="no"
          compress="false">
-	<fileset dir="${build}/classes" includes="org/**/*"/>
+        <fileset dir="${build}/classes" includes="org/**/*"/>
     </jar>
+  </target>
+
+  <target name="javadoc" depends="init">
+    <!-- Create the javadoc directory -->
+    <mkdir dir="${dist}/javadoc"/>
+
+    <!-- Compile the javadoc from ${src} into ${dist}/javadoc -->
+    <javadoc packagenames="org.jdesktop.applet.util"
+             destdir="${dist}/javadoc">
+      <sourcepath>
+        <pathelement location="${src}"/>
+      </sourcepath>
+    </javadoc>
   </target>
 
   <target name="clean" depends="init">
