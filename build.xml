@@ -40,8 +40,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.1 $
- * $Date: 2007/06/19 20:00:29 $
+ * $Revision: 1.2 $
+ * $Date: 2007/06/19 20:11:34 $
  * $State: Exp $
  */
  -->
@@ -60,7 +60,7 @@
     <!-- Create the build directory -->
     <mkdir dir="${build}/classes"/>
 
-    <!-- Compile the java code from ${src}/classes into ${build}/classes -->
+    <!-- Compile the java code from ${src} into ${build}/classes -->
     <javac srcdir="${src}"
            destdir="${build}/classes"
 	   source="1.5"
