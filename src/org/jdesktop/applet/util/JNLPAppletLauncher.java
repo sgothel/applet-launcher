@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.3 $
- * $Date: 2007/06/14 23:43:14 $
+ * $Revision: 1.4 $
+ * $Date: 2007/06/19 20:27:26 $
  * $State: Exp $
  */
 
@@ -56,7 +56,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
@@ -78,7 +77,6 @@ import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
@@ -1419,37 +1417,6 @@ public class JNLPAppletLauncher extends Applet {
         }
     }
 
-    /*
-     * Test method for JNLPAppletLauncher.
-     */
-    static void testMain(String[] args) {
-        final String usage = "Usage: java JNLPAppletLauncher URL [URL...]";
-
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].startsWith("-")) {
-                System.err.println(usage);
-                System.exit(0);
-            } else {
-                TestHarness.urls.add(args[i]);
-            }
-        }
-
-        if (TestHarness.urls.isEmpty()) {
-            System.err.println(usage);
-            System.exit(1);
-        }
-
-        JNLPAppletLauncher launcher = new TestHarness.Launcher();
-        launcher.init();
-        try {
-            launcher.initResources();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        JOptionPane.showMessageDialog(null, "Press OK to exit", "Pause", JOptionPane.PLAIN_MESSAGE);
-    }
-
     // Static initializer for JNLPAppletLauncher
     static {
         System.err.println("JNLPAppletLauncher: static initializer");
@@ -1488,44 +1455,6 @@ public class JNLPAppletLauncher extends Applet {
 
 
     // -----------------------------------------------------------------------
-
-    private static class TestHarness {
-        private static List<String> urls = new ArrayList<String>();
-
-        private static class Launcher extends JNLPAppletLauncher {
-            @Override
-            public String getParameter(String key) {
-                if (key.equals("jnlpNumExtensions")) {
-                    return Integer.toString(TestHarness.urls.size());
-                } else if (key.startsWith("jnlpExtension")) {
-                    int idx = Integer.parseInt(key.substring("jnlpExtension".length())) - 1;
-                    return TestHarness.urls.get(idx);
-                } else if (key.equals("subapplet.classname")) {
-                    return "MyCoolApplet3D";
-                } else if (key.equals("archive")) {
-                    return "mycoolapplet3d.jar,JNLPAppletLauncher.jar,j3dcore.jar,j3dutils.jar,vecmath.jar";
-                }
-                return "";
-            }
-
-            @Override
-            public URL getCodeBase() {
-                URL codebase = null;
-                try {
-                    codebase = new URL("http://java.com/cool/applets/applet-test/");
-                } catch (MalformedURLException ex) {
-                    Logger.getLogger("global").severe(ex.toString());
-                }
-                return codebase;
-            }
-
-            @Override
-            public AppletContext getAppletContext() {
-                return null;
-            }
-        }
-    }
-
 
     /**
      * Proxy implementation class of AppletStub. Delegates to the
