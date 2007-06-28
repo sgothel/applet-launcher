@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.4 $
- * $Date: 2007/06/19 20:27:26 $
+ * $Revision: 1.5 $
+ * $Date: 2007/06/28 18:15:50 $
  * $State: Exp $
  */
 
@@ -50,8 +50,12 @@ import java.applet.AppletStub;
 import java.awt.BorderLayout;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -301,6 +305,8 @@ public class JNLPAppletLauncher extends Applet {
      *    during validation, since multiple threads, or even multiple processes,
      *    can access it concurrently.
      *
+     * TODO: We need a way to clear the cache.
+     *
      * We also considered, but rejected, the following solutions:
      *
      * 1. Use a temporary directory for native jars, download, verify, unpack,
@@ -500,7 +506,6 @@ public class JNLPAppletLauncher extends Applet {
                 }
                 lckFile.createNewFile();
                 final FileOutputStream lckOut = new FileOutputStream(lckFile);
-
                 final FileChannel lckChannel = lckOut.getChannel();
                 final FileLock lckLock = lckChannel.lock();
 
@@ -1015,35 +1020,15 @@ public class JNLPAppletLauncher extends Applet {
         }
 
         // Validate the cache, download the jar if needed
-        if (!validateCache(conn, nativeFile, indexFile)) {
-            if (VERBOSE) {
-                System.err.println("processNativeJar: downloading " + nativeFile.getAbsolutePath());
-            }
-            indexFile.delete();
-            nativeFile.delete();
-
-            // Copy from URL to File
-            int len = conn.getContentLength();
-            if (VERBOSE) {
-                System.err.println("Content length = " + len + " bytes");
-            }
-
-            int totalNumBytes = copyURLToFile(conn, nativeFile);
-            if (DEBUG) {
-                System.err.println("processNativeJar: " + conn.getURL().toString() +
-                        " --> " + nativeFile.getAbsolutePath() + " : " +
-                        totalNumBytes + " bytes written");
-            }
-
-            // TODO: Write timestamp to index file.
-
-        } else {
-            if (DEBUG) {
-                System.err.println("processNativeJar: using previously cached: " +
-                        nativeFile.getAbsolutePath());
-            }
+        // TODO: rather than synchronizing on System.out during cache validation,
+        // we should use a System property as a lock token (protected by
+        // System.out) so we don't hold a synchronized lock on System.out during
+        // a potentially long download operation.
+        synchronized (System.out) {
+            validateCache(conn, nativeFile, indexFile);
         }
 
+        // Unpack the jar file
         displayMessage("Unpacking: " + nativeFileName);
         setProgress(0);
 
@@ -1062,22 +1047,116 @@ public class JNLPAppletLauncher extends Applet {
         }
     }
 
-    // Validate the cached file. If the cached file is valid, return true, else
-    // return false.
-    private boolean validateCache(URLConnection conn, File nativeFile, File indexFile) {
-        // TODO: implement this for real
-        return nativeFile.exists();
+    // Validate the cached file. If the cached file is out of date or otherwise
+    // invalid, download the file and store the new time stamp.
+    // This method must be called with a global lock being held such that
+    // no other thread -- even in another class loader -- can executed this
+    // method concurrently.
+    private void validateCache(URLConnection conn,
+            File nativeFile,
+            File indexFile) throws IOException {
+
+        // Lock the cache directory
+        final String lckFileName = "cache.lck";
+        File lckFile = new File(cacheDir, lckFileName);
+        lckFile.createNewFile();
+        final FileOutputStream lckOut = new FileOutputStream(lckFile);
+        final FileChannel lckChannel = lckOut.getChannel();
+        final FileLock lckLock = lckChannel.lock();
+
+        try {
+            // Check to see whether the cached jar file exists and is valid
+            boolean valid = false;
+            long cachedTimeStamp = readTimeStamp(indexFile);
+            long urlTimeStamp = conn.getLastModified();
+
+            if (nativeFile.exists() &&
+                    urlTimeStamp > 0 &&
+                    urlTimeStamp == readTimeStamp(indexFile)) {
+
+                valid = true;
+            }
+
+            // Validate the cache, download the jar if needed
+            if (!valid) {
+                if (VERBOSE) {
+                    System.err.println("processNativeJar: downloading " + nativeFile.getAbsolutePath());
+                }
+                indexFile.delete();
+                nativeFile.delete();
+
+                // Copy from URL to File
+                int len = conn.getContentLength();
+                if (VERBOSE) {
+                    System.err.println("Content length = " + len + " bytes");
+                }
+
+                int totalNumBytes = copyURLToFile(conn, nativeFile);
+                if (DEBUG) {
+                    System.err.println("processNativeJar: " + conn.getURL().toString() +
+                            " --> " + nativeFile.getAbsolutePath() + " : " +
+                            totalNumBytes + " bytes written");
+                }
+
+                // Write timestamp to index file.
+                writeTimeStamp(indexFile, urlTimeStamp);
+
+            } else {
+                if (DEBUG) {
+                    System.err.println("processNativeJar: using previously cached: " +
+                            nativeFile.getAbsolutePath());
+                }
+            }
+        } finally {
+            // Unlock the cache directory
+            lckLock.release();
+        }
+    }
+
+    private long readTimeStamp(File indexFile) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(indexFile));
+            try {
+                String str = reader.readLine();
+                return Long.parseLong(str);
+            } finally {
+                reader.close();
+            }
+        } catch (Exception ex) {
+        }
+        return -1;
+    }
+
+    private void writeTimeStamp(File indexFile, long timestamp) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(indexFile));
+            try {
+                writer.write("" + timestamp + "\n");
+                writer.flush();
+            } finally {
+                writer.close();
+            }
+        } catch (Exception ex) {
+            displayError("Error writing time stamp for native libraries");
+        }
     }
 
     // Copy the specified URL to the specified File
     private int copyURLToFile(URLConnection inConnection,
             File outFile) throws IOException {
 
+        int totalNumBytes = 0;
         InputStream in = new BufferedInputStream(inConnection.getInputStream());
-        OutputStream out = new BufferedOutputStream(new FileOutputStream(outFile));
-        int totalNumBytes = copyStream(in, out, inConnection.getContentLength());
-        out.close();
-        in.close();
+        try {
+            OutputStream out = new BufferedOutputStream(new FileOutputStream(outFile));
+            try {
+                totalNumBytes = copyStream(in, out, inConnection.getContentLength());
+            } finally {
+                out.close();
+            }
+        } finally {
+            in.close();
+        }
 
         return totalNumBytes;
     }
