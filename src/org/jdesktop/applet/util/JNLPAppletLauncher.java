@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.5 $
- * $Date: 2007/06/28 18:15:50 $
+ * $Revision: 1.6 $
+ * $Date: 2007/06/28 22:08:03 $
  * $State: Exp $
  */
 
@@ -72,6 +72,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -197,7 +198,7 @@ public class JNLPAppletLauncher extends Applet {
 
     // List of extension JNLP files. This is saved for the first applet
     // and verified for each subsequent applet.
-    private static List<URL> jnlpExtensions = null;
+    private static List/*<URL>*/ jnlpExtensions = null;
 
     // Code base and archive tag for all applets that use the same ClassLoader
     private static URL codeBase;
@@ -212,12 +213,12 @@ public class JNLPAppletLauncher extends Applet {
 
     // Set of jar files specified in the JNLP files.
     // Currently unused.
-    private static Set<URL> jarFiles;
+    private static Set/*<URL>*/ jarFiles;
 
     // Set of native jar files to be loaded. We need to download these
     // native jars, verify the signatures, verify the security certificates,
     // and extract the native libraries from each jar.
-    private static Set<URL> nativeJars;
+    private static Set/*<URL>*/ nativeJars;
 
     // Native library prefix (e.g., "lib") and suffix (e.g. ".dll" or ".so")
     private static String nativePrefix;
@@ -228,7 +229,7 @@ public class JNLPAppletLauncher extends Applet {
     // call; it is the file name without the directory or the platform-dependent
     // library prefix and suffix. The value is the absolute path name to the
     // unpacked library file in nativeTmpDir.
-    private static Map<String, String> nativeLibMap;
+    private static Map/*<String, String>*/ nativeLibMap;
 
     /*
      * The following variables are per-ClassLoader static globals.
@@ -335,7 +336,7 @@ public class JNLPAppletLauncher extends Applet {
     public JNLPAppletLauncher() {
     }
 
-    @Override
+    /* @Override */
     public void init() {
         if (VERBOSE) {
             System.err.println();
@@ -384,7 +385,7 @@ public class JNLPAppletLauncher extends Applet {
         isInitOk = true;
     }
 
-    @Override
+    /* @Override */
     public void start() {
         if (DEBUG) {
             System.err.println("Applet.start");
@@ -522,7 +523,7 @@ public class JNLPAppletLauncher extends Applet {
                 // and FileLock for the jlnNNNN.lck and jlnNNNN.lck files.
                 // We do this so that the locks never get garbage-collected.
                 Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override
+                    /* @Override */
                     public void run() {
                         // NOTE: we don't really expect that this code will ever
                         // be called. If it does, we will close the output
@@ -548,7 +549,7 @@ public class JNLPAppletLauncher extends Applet {
 
                 // Start a new Reaper thread to do stuff...
                 Thread reaperThread = new Thread() {
-                    @Override
+                    /* @Override */
                     public void run() {
                         deleteOldTempDirs();
                     }
@@ -591,7 +592,7 @@ public class JNLPAppletLauncher extends Applet {
         // enumerate list of jnl*.lck files, ignore our own jlnNNNN file
         final String ourLockFile = tmpRootPropValue + ".lck";
         FilenameFilter lckFilter = new FilenameFilter() {
-            @Override
+            /* @Override */
             public boolean accept(File dir, String name) {
                 return name.endsWith(".lck") && !name.equals(ourLockFile);
             }
@@ -760,9 +761,9 @@ public class JNLPAppletLauncher extends Applet {
                 }
 
                 // Initialize the collections of resources
-                jarFiles = new HashSet<URL>();
-                nativeJars = new HashSet<URL>();
-                nativeLibMap = new HashMap<String, String>();
+                jarFiles = new HashSet/*<URL>*/();
+                nativeJars = new HashSet/*<URL>*/();
+                nativeLibMap = new HashMap/*<String, String>*/();
             } else {
                 // The following must hold for applets in the same ClassLoader
                 assert getCodeBase().equals(codeBase);
@@ -773,7 +774,7 @@ public class JNLPAppletLauncher extends Applet {
             String numParamString = getParameter("jnlpNumExtensions");
             if (numParamString != null) {
                 try {
-                    jnlpNumExt = new Integer(numParamString);
+                    jnlpNumExt = Integer.parseInt(numParamString);
                 } catch (NumberFormatException ex) {
                 }
 
@@ -782,7 +783,7 @@ public class JNLPAppletLauncher extends Applet {
                 }
             }
 
-            List<URL> urls = new ArrayList<URL>();
+            List/*<URL>*/ urls = new ArrayList/*<URL>*/();
             for (int i = 1; i <= jnlpNumExt; i++) {
                 String paramName = "jnlpExtension" + i;
                 String urlString = getParameter(paramName);
@@ -817,7 +818,8 @@ public class JNLPAppletLauncher extends Applet {
                     // Download and validate the set of native jars, if the
                     // cache is out of date. Then extract the native DLLs,
                     // creating a list of native libraries to be loaded.
-                    for (URL url : nativeJars) {
+                    for (Iterator iter = nativeJars.iterator(); iter.hasNext(); ) {
+                        URL url = (URL) iter.next();
                         processNativeJar(url);
                     }
                 }
@@ -1005,10 +1007,12 @@ public class JNLPAppletLauncher extends Applet {
         URLConnection conn = url.openConnection();
         conn.connect();
 
-        Map<String,List<String>>headerFields = conn.getHeaderFields();
+        Map/*<String,List<String>>*/ headerFields = conn.getHeaderFields();
         if (VERBOSE) {
-            for (Entry<String,List<String>>e : headerFields.entrySet()) {
-                for (String s : e.getValue()) {
+            for (Iterator iter = headerFields.entrySet().iterator(); iter.hasNext(); ) {
+                Entry/*<String,List<String>>*/ e = (Entry) iter.next();
+                for (Iterator iter2 = ((List/*<String>*/) e.getValue()).iterator(); iter2.hasNext(); ) {
+                    String s = (String) iter.next();
                     if (e.getKey() != null) {
                         System.err.print(e.getKey() + ": ");
                     }
@@ -1034,7 +1038,7 @@ public class JNLPAppletLauncher extends Applet {
 
         // Enumerate the jar file looking for native libraries
         JarFile jarFile = new JarFile(nativeFile);
-        Set<String> nativeLibNames = getNativeLibNames(jarFile);
+        Set/*<String>*/ nativeLibNames = getNativeLibNames(jarFile);
 
         // Validate certificates; throws exception upon validation error
         validateCertificates(jarFile, nativeLibNames);
@@ -1195,15 +1199,15 @@ public class JNLPAppletLauncher extends Applet {
      * Enumerate the list of entries in the jar file and return those that are
      * native library names.
      */
-    private Set<String> getNativeLibNames(JarFile jarFile) {
+    private Set/*<String>*/ getNativeLibNames(JarFile jarFile) {
         if (VERBOSE) {
             System.err.println("getNativeLibNames:");
         }
 
-        Set<String> names = new HashSet<String>();
-        Enumeration<JarEntry> entries = jarFile.entries();
+        Set/*<String>*/ names = new HashSet/*<String>*/();
+        Enumeration/*<JarEntry>*/ entries = jarFile.entries();
         while (entries.hasMoreElements()) {
-            JarEntry entry = entries.nextElement();
+            JarEntry entry = (JarEntry) entries.nextElement();
             String nativeLibName = entry.getName();
 
             if (VERBOSE) {
@@ -1233,16 +1237,16 @@ public class JNLPAppletLauncher extends Applet {
      * Throws an IOException if any certificate is not valid.
      */
     private void validateCertificates(JarFile jarFile,
-            Set<String> nativeLibNames) throws IOException {
+            Set/*<String>*/ nativeLibNames) throws IOException {
 
         if (DEBUG) {
             System.err.println("validateCertificates:");
         }
 
         byte[] buf = new byte[1000];
-        Enumeration<JarEntry> entries = jarFile.entries();
+        Enumeration/*<JarEntry>*/ entries = jarFile.entries();
         while (entries.hasMoreElements()) {
-            JarEntry entry = entries.nextElement();
+            JarEntry entry = (JarEntry) entries.nextElement();
             String entryName = entry.getName();
 
             if (VERBOSE) {
@@ -1309,15 +1313,15 @@ public class JNLPAppletLauncher extends Applet {
      * Extract the specified set of native libraries in the given jar file.
      */
     private void extractNativeLibs(JarFile jarFile,
-            Set<String> nativeLibNames) throws IOException {
+            Set/*<String>*/ nativeLibNames) throws IOException {
 
         if (DEBUG) {
             System.err.println("extractNativeLibs:");
         }
 
-        Enumeration<JarEntry> entries = jarFile.entries();
+        Enumeration/*<JarEntry>*/ entries = jarFile.entries();
         while (entries.hasMoreElements()) {
-            JarEntry entry = entries.nextElement();
+            JarEntry entry = (JarEntry) entries.nextElement();
             String entryName = entry.getName();
 
             if (VERBOSE) {
@@ -1393,7 +1397,7 @@ public class JNLPAppletLauncher extends Applet {
             System.err.println("JNLPAppletLauncher.loadLibrary(\"" + libraryName + "\")");
         }
 
-        String fullLibraryName = nativeLibMap.get(libraryName);
+        String fullLibraryName = (String) nativeLibMap.get(libraryName);
         if (DEBUG) {
             System.err.println("    loading: " + fullLibraryName + "");
         }
@@ -1459,8 +1463,9 @@ public class JNLPAppletLauncher extends Applet {
         }
     }
 
-    private void parseJNLPExtensions(List<URL> urls) throws IOException {
-        for (URL url : urls) {
+    private void parseJNLPExtensions(List/*<URL>*/ urls) throws IOException {
+        for (Iterator iter = urls.iterator(); iter.hasNext(); ) {
+            URL url = (URL) iter.next();
             JNLPParser parser = new JNLPParser(this, url);
             parser.parse();
         }
@@ -1489,8 +1494,9 @@ public class JNLPAppletLauncher extends Applet {
     /*
      * Debug method to print out resources from the JNLP file
      */
-    private static void doPrint(Collection<URL> urls) {
-        for (URL url : urls) {
+    private static void doPrint(Collection/*<URL>*/ urls) {
+        for (Iterator iter = urls.iterator(); iter.hasNext(); ) {
+            URL url = (URL) iter.next();
             String urlString = url.toExternalForm();
             System.err.println("      " + urlString);
         }
@@ -1573,13 +1579,11 @@ public class JNLPAppletLauncher extends Applet {
     private static class JNLPParser {
 
         // The following represents the various states we can be in
-        private enum State {
-            INITIAL,
-            STARTED,
-            IN_JNLP,
-            IN_RESOURCES,
-            SKIP_ELEMENT,
-        }
+        private static final int INITIAL = 1;
+        private static final int STARTED = 2;
+        private static final int IN_JNLP = 3;
+        private static final int IN_RESOURCES = 4;
+        private static final int SKIP_ELEMENT = 5;
 
         private static SAXParserFactory factory;
         private static String systemOsName;
@@ -1590,8 +1594,8 @@ public class JNLPAppletLauncher extends Applet {
         private InputStream in;
         private JNLPHandler handler;
         private String codebase = "";
-        private State state = State.INITIAL;
-        private State prevState = State.INITIAL;
+        private int state = INITIAL;
+        private int prevState = INITIAL;
         private int depth = 0;
         private int skipDepth = -1;
 
@@ -1640,31 +1644,31 @@ public class JNLPAppletLauncher extends Applet {
             JNLPHandler() {
             }
 
-            @Override
+            /* @Override */
             public void startDocument() {
                 if (VERBOSE) {
                     System.err.println("START DOCUMENT: " + url);
                 }
 
-                state = State.STARTED;
+                state = STARTED;
                 if (VERBOSE) {
                     System.err.println("state = " + state);
                 }
             }
 
-            @Override
+            /* @Override */
             public void endDocument() {
                 if (VERBOSE) {
                     System.err.println("END DOCUMENT");
                 }
 
-                state = State.INITIAL;
+                state = INITIAL;
                 if (VERBOSE) {
                     System.err.println("state = " + state);
                 }
             }
 
-            @Override
+            /* @Override */
             public void startElement(String uri,
                     String localName,
                     String qName,
@@ -1685,7 +1689,7 @@ public class JNLPAppletLauncher extends Applet {
                 switch (state) {
                 case STARTED:
                     if (qName.equals("jnlp")) {
-                        state = State.IN_JNLP;
+                        state = IN_JNLP;
 
                         codebase = attributes.getValue("codebase");
                         if (codebase == null) {
@@ -1718,11 +1722,11 @@ public class JNLPAppletLauncher extends Applet {
                             if (VERBOSE) {
                                 System.err.println("Loading resources : os=" + osName + "  arch=" + osArch);
                             }
-                            state = State.IN_RESOURCES;
+                            state = IN_RESOURCES;
                         } else {
                             prevState = state;
                             skipDepth = depth - 1;
-                            state = State.SKIP_ELEMENT;
+                            state = SKIP_ELEMENT;
                         }
 
                         if (VERBOSE) {
@@ -1773,14 +1777,14 @@ public class JNLPAppletLauncher extends Applet {
                         } else {
                             prevState = state;
                             skipDepth = depth - 1;
-                            state = State.SKIP_ELEMENT;
+                            state = SKIP_ELEMENT;
 
                             if (VERBOSE) {
                                 System.err.println("state = " + state);
                             }
                         }
                     } catch (IOException ex) {
-                        throw (SAXException) new SAXException().initCause(ex);
+                        throw (SAXException) new SAXException(ex).initCause(ex);
                     }
                     break;
 
@@ -1792,7 +1796,7 @@ public class JNLPAppletLauncher extends Applet {
 
             }
 
-            @Override
+            /* @Override */
             public void endElement(String uri,
                     String localName,
                     String qName) throws SAXException {
@@ -1807,7 +1811,7 @@ public class JNLPAppletLauncher extends Applet {
                 switch (state) {
                 case IN_JNLP:
                     if (qName.equals("jnlp")) {
-                        state = State.STARTED;
+                        state = STARTED;
                         if (VERBOSE) {
                             System.err.println("state = " + state);
                         }
@@ -1816,7 +1820,7 @@ public class JNLPAppletLauncher extends Applet {
 
                 case IN_RESOURCES:
                     if (qName.equals("resources")) {
-                        state = State.IN_JNLP;
+                        state = IN_JNLP;
                         if (VERBOSE) {
                             System.err.println("state = " + state);
                         }
