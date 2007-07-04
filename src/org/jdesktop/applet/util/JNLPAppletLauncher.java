@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.8 $
- * $Date: 2007/07/04 20:20:57 $
+ * $Revision: 1.9 $
+ * $Date: 2007/07/04 20:22:54 $
  * $State: Exp $
  */
 
@@ -240,6 +240,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * JNLPAppletLauncher in a few different scenarios.
  *
  * <h2>Applets using the OpenGL(r) 3D API</h2>
+ *
+ * <p>
  *
  * Applets using the OpenGL 3D graphics API, for example through JOGL
  * or Java 3D, may encounter robustness issues on the Windows platform
