@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.6 $
- * $Date: 2007/06/28 22:08:03 $
+ * $Revision: 1.7 $
+ * $Date: 2007/07/04 20:17:42 $
  * $State: Exp $
  */
 
@@ -53,6 +53,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -76,12 +77,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
@@ -93,48 +96,199 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * General purpose JNLP-based AppletLauncher class for deploying applets that use
- * extension libraries containing native code. It is based on JOGLAppletLauncher,
- * but uses an extension's .jnlp file to locate the native resources, so that
- * for a given extension, the application developer only needs to host the
- * platform-independent .jar files containing the .class files. The
- * platform-specific native .jar files are downloaded automatically from the same
- * server that hosts the extension web start binaries.
+ * The JNLPAppletLauncher is a general purpose JNLP-based applet
+ * launcher class for deploying applets that use extension libraries
+ * containing native code. It allows applets to use extensions like
+ * Java 3D, JOGL, and JOAL very easily, with just a few additional
+ * parameters to the <code>&lt;applet&gt;</code> tag, on Java SE
+ * versions as far back as 1.4.2.
  *
  * <p>
- * Extensions that currently plan to support JNLPAppletLauncher include:
- * Java 3D, JOAL, and JOGL. More could be added later without needing to modify
- * JNLPAppletLauncher.
+ *
+ * Like Java Web Start, the JNLPAppletLauncher uses an extension's
+ * .jnlp file to locate the native resources for a given extension.
+ * The applet developer only needs to specify the platform-independent
+ * .jar files containing the .class files for the extension. The
+ * platform-specific "nativelib" .jar files are downloaded
+ * automatically from the same server that hosts the extension's Java
+ * Web Start binaries.
  *
  * <p>
- * The applet-launcher jar file containing the JNLPAppletLauncher class must be
- * signed with the same certificate as the extension's native resources, typically
- * "sun microsystems, inc.". The user will receive a ssecurity dialog and will
- * be prompted to accept the certificate for the JLNPAppletLauncher.
- * The applet being deployed may be either signed or
- * unsigned; if it is unsigned, it runs inside the security sandbox,
- * and if it is signed, the user receives a security dialog to accept
- * the certificate for the applet (in addition to the applet-launcher jar,
- * if it is signed by a different entity).
+ *
+ * Extensions that support JNLPAppletLauncher include Java 3D, JOGL,
+ * and JOAL. More can be added without needing to modify the
+ * JNLPAppletLauncher. See the section below on <a
+ * href="#MODIFYING">modifying extensions to work with the
+ * JNLPAppletLauncher</a>.
+ *
+ * <h2> How to Deploy Applets Using the JNLPAppletLauncher </h2>
+ * <p>
+ *
+ * The <code>applet-launcher.jar</code> file containing the
+ * JNLPAppletLauncher class must be signed with the same certificate
+ * as the extension's native resources, for example "sun microsystems,
+ * inc.". The user will receive a security dialog and will be prompted
+ * to accept the certificate for the JLNPAppletLauncher.  The applet
+ * being deployed may be either signed or unsigned; if it is unsigned,
+ * it runs inside the security sandbox, and if it is signed, the user
+ * receives a security dialog to accept the certificate for the applet
+ * (in addition to the applet-launcher jar, if it is signed by a
+ * different entity).
  *
  * <p>
+ *
  * The steps for deploying such applets are straightforward. First,
- * the "archive" parameter to the applet tag must contain applet-laucher.jar,
- * the extension .jar files, and any jar files associated with your
- * applet (in this case, "your_applet.jar").
+ * the <code>archive</code> parameter to the applet tag must contain
+ * <code>applet-laucher.jar</code>, the extension .jar files, and any
+ * jar files associated with your applet. See the section on <a
+ * href="#ORGANIZING">organizing jar files</a> for more details.
  *
  * <p>
- * Second, the codebase directory on the server, which contains the
- * applet's jar files, must also contain applet-laucher.jar and all of
- * the extension .jar files
- * files from the standard extension's runtime distributions
- * (TBD).
+ *
+ * Second, the name of your applet's main class and a textual
+ * description must be specified via the applet tag parameters
+ * <code>subapplet.classname</code> and
+ * <code>subapplet.displayname</code>.
  *
  * <p>
- * TODO: List the Java 3D, JOGL, and JOAL jar files here.
+ *
+ * Finally, the URLs for the extension .jnlp files being used must be
+ * specified as parameters. The <code>jnlpNumExtensions</code>
+ * parameter indicates the number of JNLP files that are referenced,
+ * and for <code>n</code> such files, their URLs are passed in as
+ * parameters <code>jnlpExtension1</code> ...
+ * <code>jnlpExtension[n]</code>.
+ *
+ * <h2><a name="ORGANIZING">Organizing Jar Files</a></h2>
  *
  * <p>
- * Sample applet code:
+ *
+ * Traditionally, applets are specified with a codebase and an archive
+ * parameter, the latter which is a list of jar files relative to that
+ * codebase. The codebase is optional and defaults to the directory on
+ * the web server containing the HTML document which contains the
+ * applet tag. See the documentation for the <a
+ * href="http://java.sun.com/j2se/1.4.2/docs/guide/misc/applet.html">applet
+ * tag</a>.
+ *
+ * <p>
+ *
+ * It is not well documented, but at least in the Sun JRE at least as
+ * far back as Java SE 1.4.2, it is possible to use absolute URLs in
+ * the applet tag's archive parameter. This functionality works on all
+ * major operating systems: Windows, Mac OS X, Linux, and Solaris.
+ * This means that you can pull code resources from multiple web
+ * servers, not just one, in similar fashion to Java Web Start and its
+ * extension mechanism. (The security implications are that each
+ * unsigned piece of code downloaded from a separate server receives
+ * sandboxed permissions to connect back to that server; if there are
+ * multiple pieces of unsigned code on the stack during execution of
+ * the program then the permissions will be the intersection of all of
+ * those on the stack, implying that no programmatic network
+ * connections back to the web server(s) will be allowed. See the <a
+ * href="http://java.sun.com/sfaq/">Applet Security FAQ</a> for more
+ * details.)
+ *
+ * <p>
+ *
+ * This capability means that your applets can refer directly to
+ * extensions like Java 3D and JOGL hosted on Sun's web servers
+ * without having to duplicate their jar files on your web server.
+ * 
+ * <p>
+ *
+ * To use this capability effectively with the JNLPAppletLauncher, you
+ * need to pull in at least three primary pieces of code: the applet
+ * launcher itself, your applet's code, and the Java code for the
+ * extension, or extensions, your applet depends on. (Remember that
+ * the JNLPAppletLauncher's primary function is to automatically
+ * download the native code associated with these extensions, and not
+ * the Java code for these extensions.)
+ *
+ * <p>
+ *
+ * You might choose to specify the codebase of your applet to point to
+ * your web server's directory containing the jar files of your
+ * applet, and specify absolute URLs to the
+ * <code>applet-launcher.jar</code> and the extension jar files. Or
+ * you might decide to point the codebase to the server which hosts
+ * the applet launcher and specify all of the other resources,
+ * including your applet, with absolute URLs. Or you might decide to
+ * use all absolute URLs in your archive tag with no codebase. The
+ * techniques are basically equivalent. We recommend either pointing
+ * the codebase to the directory containing your applet's jars, using
+ * relative URLs for your applet, and using absolute URLs for all
+ * other resources; or using all absolute URLs.
+ *
+ * <p>
+ *
+ * Alternatively, you can re-host the jar files and/or JNLP files and
+ * nativelib jars for the extensions you use on your own web
+ * server. This has the advantage that your applet will connect to
+ * fewer web servers upon startup, but has the disadvantages of
+ * requiring additional maintenance on your part and not automatically
+ * receiving updates to the extensions when they are published.
+ *
+ * <p>
+ *
+ * The <code>jnlpExtension</code> parameters passed to the
+ * JNLPAppletLauncher must be specified with absolute URLs.
+ *
+ * <p>
+ *
+ * The <a href="#EXAMPLES">examples</a> show how to use the
+ * JNLPAppletLauncher in a few different scenarios.
+ *
+ * <h2>Applets using the OpenGL(r) 3D API</h2>
+ *
+ * Applets using the OpenGL 3D graphics API, for example through JOGL
+ * or Java 3D, may encounter robustness issues on the Windows platform
+ * because Sun's Java 2D implementation on Windows uses Microsoft's
+ * DirectDraw API. DirectDraw and OpenGL are incompatible at the
+ * driver level.
+ *
+ * <p>
+ *
+ * As a workaround for this problem, the JNLPAppletLauncher supports
+ * disabling the use of DirectDraw. Currently this can only be done on
+ * a global basis, for all applets, but doing so is unlikely to slow
+ * down other non-3D applets significantly.
+ *
+ * <p>
+ *
+ * Specifying the applet parameter
+ *
+ * <pre>
+ * &lt;param name="noddraw.check" value="true"&gt;
+ * </pre>
+ *
+ * will cause the applet launcher, when run on Windows, to check to
+ * see whether DirectDraw is enabled and, if so, will prompt the user
+ * with a dialog box asking to disable it. A browser restart is
+ * required if the setting is changed.
+ *
+ * <p>
+ *
+ * If the dialog box is undesirable in a given situation, you can
+ * force the noddraw check to always disable DirectDraw with the two
+ * applet parameters:
+ *
+ * <pre>
+ * &lt;param name="noddraw.check" value="true"&gt;
+ * &lt;param name="noddraw.check.silent" value="true"&gt;
+ * </pre>
+ *
+ * In this case it will not be obvious to the end user that a browser
+ * restart might be required for best robustness, but you could
+ * potentially document the need to try restarting the browser in case
+ * of instability.
+ *
+ * <h2><a name="EXAMPLES">Examples</a></h2>
+ *
+ * <p>
+ *
+ * An applet using Java 3D as an extension:
+ *
  * <pre>
  * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
  *      width=640
@@ -149,11 +303,223 @@ import org.xml.sax.helpers.DefaultHandler;
  *   &lt;param name="progressbar" value="true"&gt;
  * &lt;/applet&gt;
  * </pre>
+ *
+ * <p>
+ *
+ * An applet using JOGL as an extension. Note that this example does
+ * not specify a codebase, instead specifying all of its archive tag
+ * elements with absolute URLs. Note also the use of the
+ * <code>noddraw.check</code> parameter to disable the use of
+ * DirectDraw since using JOGL implies the use of OpenGL.
+ *
+ * <pre>
+ * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
+ *      width=600
+ *      height=400
+ *      archive="http://download.java.net/media/applet-launcher/applet-launcher.jar,http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar"&gt;
+ *   &lt;param name="subapplet.classname" value="demos.applets.GearsApplet"&gt;
+ *   &lt;param name="subapplet.displayname" value="JOGL Gears Applet"&gt;
+ *   &lt;param name="noddraw.check" value="true"&gt;
+ *   &lt;param name="progressbar" value="true"&gt;
+ *   &lt;param name="jnlpNumExtensions" value="1"&gt;
+ *   &lt;param name="jnlpExtension1"
+ *          value="http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp"&gt;
+ * &lt;/applet&gt;
+ * </pre>
  * 
- * TODO: Finish this, borrowing from JOGLAppletLauncher where needed.
+ * <p>
+ * 
+ * An applet using both JOGL and JOAL as extensions. Note again that
+ * all code resources are specified with absolute URLs. In this
+ * example the unsigned applet pulls in code from both
+ * <code>jogl-demos.jar</code> and <code>joal-demos.jar</code>. Note
+ * again the use of the <code>noddraw.check</code> parameter.
+ * 
+ * <pre> 
+ * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
+ *      width=600
+ *      height=400
+ *      archive="http://download.java.net/media/applet-launcher/applet-launcher.jar,http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar,http://download.java.net/media/joal/webstart/joal.jar,http://download.java.net/media/joal/webstart/joal-demos.jar"&gt;
+ *   &lt;param name="subapplet.classname" VALUE="demos.applets.GearsJOALApplet"&gt;
+ *   &lt;param name="subapplet.displayname" VALUE="JOGL / JOAL Gears Applet"&gt;
+ *   &lt;param name="noddraw.check" value="true"&gt;
+ *   &lt;param name="progressbar" value="true"&gt;
+ *   &lt;param name="jnlpNumExtensions" value="2"&gt;
+ *   &lt;param name="jnlpExtension1"
+ *          value="http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp"&gt;
+ *   &lt;param name="jnlpExtension2"
+ *          value="http://download.java.net/media/joal/webstart/joal.jnlp"&gt;
+ * &lt;/applet&gt;
+ * </pre> 
+ * 
+ * <h2> Locations of Standard Extensions </h2>
+ * 
+ * <p>
+ * 
+ * This section describes how to set up the <code>archive</code> and
+ * <code>jnlpExtension</code> parameters for a few standard
+ * extensions.
+ * 
+ * <h3>JNLPAppletLauncher</h3>
+ * 
+ * The master jar file for the JNLPAppletLauncher is located at the following URL:
+ * <pre>
+ * http://download.java.net/media/applet-launcher/applet-launcher.jar
+ * </pre>
+ * 
+ * This jar needs to be added to your archive parameter.
+ * 
+ * <h3>Java 3D</h3>
+ * 
+ * The early access release of Java 3D 1.5.1 and later support the
+ * JNLPAppletLauncher. You will need to add the following URLs to your
+ * archive parameter:
+ *
+ * <pre>
+ * http://download.java.net/media/java3d/webstart/early-access/j3d/1.5.1/j3dcore.jar
+ * http://download.java.net/media/java3d/webstart/early-access/j3d/1.5.1/j3dutils.jar
+ * http://download.java.net/media/java3d/webstart/early-access/vecmath/1.5.1/vecmath.jar
+ * </pre>
+ *
+ * and refer to the following in one of your <code>jnlpExtension</code> parameters:
+ *
+ * <pre>
+ * http://download.java.net/media/java3d/webstart/early-access/java3d-1.5.1-exp.jnlp
+ * </pre>
+ *
+ * <h3>JOGL</h3>
+ *
+ * JOGL 1.1.1-rc3 and later support the JNLPAppletLauncher. You will
+ * need to add the following URL to your archive parameter:
+ *
+ * <pre>
+ * http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar
+ * </pre>
+ *
+ * Because JOGL depends on the GlueGen runtime, you will also need to
+ * add the following URL to your archive parameter:
+ *
+ * <pre>
+ * http://download.java.net/media/gluegen/webstart/gluegen-rt.jar
+ * </pre>
+ *
+ * Finally, add the following to one of your
+ * <code>jnlpExtension</code> parameters:
+ *
+ * <pre>
+ * http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp
+ * </pre>
+ *
+ * Note that the jogl.jnlp extension will automatically pull in the
+ * native code associated with the GlueGen runtime, so you don't have
+ * to separately refer to the gluegen-rt.jnlp file.
+ *
+ * <h3>JOAL</h3>
+ *
+ * JOAL 1.1.1 and later support the JNLPAppletLauncher. You will need
+ * to add the following URL to your archive parameter:
+ *
+ * <pre>
+ * http://download.java.net/media/joal/webstart/joal.jar
+ * </pre>
+ *
+ * Because JOAL, like JOGL, depends on the GlueGen runtime, you will
+ * also need to add the following URL to your archive parameter:
+ *
+ * <pre>
+ * http://download.java.net/media/gluegen/webstart/gluegen-rt.jar
+ * </pre>
+ *
+ * (If you are using both JOGL and JOAL, you only need to refer to
+ * gluegen-rt.jar once in your archive parameter.)
+ *
+ * <p>
+ *
+ * Finally, add the following to one of your
+ * <code>jnlpExtension</code> parameters:
+ *
+ * <pre>
+ * http://download.java.net/media/joal/webstart/joal.jnlp
+ * </pre>
+ *
+ * Note that the joal.jnlp extension will automatically pull in the
+ * native code associated with the GlueGen runtime, so you don't have
+ * to separately refer to the gluegen-rt.jnlp file.
+ *
+ * <h2><a name="MODIFYING">Modifying Your Extension To Work With The JNLPAppletLauncher</a></h2>
+ *
+ * <p>
+ *
+ * If you are the author of an extension like JOGL which requires some
+ * native code, with only a simple code change you can make your
+ * extension work with the JNLPAppletLauncher. Simply add the
+ * following method somewhere in your code:
+ *
+ * <pre>
+ *  private static void loadLibraryInternal(String libraryName) {
+ *      String sunAppletLauncher = System.getProperty("sun.jnlp.applet.launcher");
+ *      boolean usingJNLPAppletLauncher =
+ *          Boolean.valueOf(sunAppletLauncher).booleanValue();
+ *      if (usingJNLPAppletLauncher) {
+ *          try {
+ *              Class jnlpAppletLauncherClass =
+ *                  Class.forName("org.jdesktop.applet.util.JNLPAppletLauncher");
+ *              Method jnlpLoadLibraryMethod =
+ *                  jnlpAppletLauncherClass.getDeclaredMethod("loadLibrary",
+ *                                                            new Class[] { String.class });
+ *              jnlpLoadLibraryMethod.invoke(null, new Object[] { libraryName });
+ *          } catch (Exception e) {
+ *              throw new RuntimeException(e);
+ *          }
+ *      } else {
+ *          System.loadLibrary(libraryName);
+ *      }
+ *  }
+ * </pre>
+ *
+ * and wherever you would call <code>System.loadLibrary()</code> (from
+ * within an <code>AccessController.doPrivileged()</code> block) to
+ * load your extension's native code, call the above
+ * <code>loadLibraryInternal</code> method instead.
+ *
+ * <p>
+ *
+ * Note again that because the <code>applet-launcher.jar</code> and
+ * the nativelib jars for all extensions must currently be signed with
+ * the same certificate, this implies that you must resign both the
+ * applet launcher as well as any other extensions your applet relies
+ * on (unless yours is a Sun-standard extension and can be signed with
+ * Sun's code signing certificate).
+ *
+ * <h2>Acknowledgments</h2>
+ *
+ * The JNLPAppletLauncher was developed by Kevin Rushforth, Kenneth
+ * Russell, and Chien Yang. It is based on the former
+ * JOGLAppletLauncher developed by Lilian Chamontin.
  */
 
 public class JNLPAppletLauncher extends Applet {
+
+    private static void loadLibraryInternal(String libraryName) {
+        String sunAppletLauncher = System.getProperty("sun.jnlp.applet.launcher");
+        boolean usingJNLPAppletLauncher =
+            Boolean.valueOf(sunAppletLauncher).booleanValue();
+
+        if (usingJNLPAppletLauncher) {
+            try {
+                Class jnlpAppletLauncherClass =
+                    Class.forName("org.jdesktop.applet.util.JNLPAppletLauncher");
+                Method jnlpLoadLibraryMethod =
+                    jnlpAppletLauncherClass.getDeclaredMethod("loadLibrary",
+                                                              new Class[] { String.class });
+                jnlpLoadLibraryMethod.invoke(null, new Object[] { libraryName });
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            System.loadLibrary(libraryName);
+        }
+    }
 
     private static final boolean VERBOSE = false;
     private static final boolean DEBUG = true;
@@ -181,6 +547,11 @@ public class JNLPAppletLauncher extends Applet {
 
     // Panel that will hold the splash-screen image and progress bar while loading
     private JPanel loaderPanel;
+
+    // Helpers for updating deployment.properties with -Dsun.java2d.noddraw=true
+    private static final String JRE_PREFIX = "deployment.javapi.jre.";
+    private static final String NODDRAW_PROP = "-Dsun.java2d.noddraw=true";
+    private static final String DONT_ASK = ".dont_ask";
 
     // Optional progress bar
     private JProgressBar progressBar;
@@ -404,7 +775,7 @@ public class JNLPAppletLauncher extends Applet {
                 startupThread.setPriority(Thread.NORM_PRIORITY - 1);
                 startupThread.start();
             } else if (appletStarted) {
-                // TODO: checkNoDDrawAndUpdateDeploymentProperties();
+                checkNoDDrawAndUpdateDeploymentProperties();
 
                 // We have to start again the applet (start can be called multiple times,
                 // e.g once per tabbed browsing
@@ -1370,7 +1741,7 @@ public class JNLPAppletLauncher extends Applet {
             subApplet.init();
             remove(loaderPanel);
             validate();
-            // TODO: checkNoDDrawAndUpdateDeploymentProperties();
+            checkNoDDrawAndUpdateDeploymentProperties();
             subApplet.start();
             appletStarted = true;
         } catch (Exception ex) {
@@ -1848,4 +2219,144 @@ public class JNLPAppletLauncher extends Applet {
         }
     }
 
+    //----------------------------------------------------------------------
+    // Helper routines for adding 
+
+    // Get a "boolean" parameter
+    private boolean getBooleanParameter(String parameterName) {
+        return Boolean.valueOf(getParameter(parameterName)).booleanValue();
+    }
+
+    private void checkNoDDrawAndUpdateDeploymentProperties() {
+        if (!getBooleanParameter("noddraw.check"))
+            return;
+        if (System.getProperty("os.name").toLowerCase().startsWith("windows") &&
+            !"true".equalsIgnoreCase(System.getProperty("sun.java2d.noddraw"))) {
+            if (!SwingUtilities.isEventDispatchThread()) {
+                try {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                            public void run() {
+                                updateDeploymentPropertiesImpl();
+                            }
+                        });
+                } catch (Exception e) {
+                }
+            } else {
+                updateDeploymentPropertiesImpl();
+            }
+        }
+    }
+
+    private void updateDeploymentPropertiesImpl() {
+        String userHome = System.getProperty("user.home");
+        File dontAskFile = new File(userHome + File.separator + ".jnlp-applet" +
+                                    File.separator + DONT_ASK);
+        if (dontAskFile.exists())
+            return; // User asked us not to prompt again
+
+        int option = 0;
+
+        if (!getBooleanParameter("noddraw.check.silent")) {
+            option = JOptionPane.showOptionDialog(null,
+                                                  "For best robustness of OpenGL applets on Windows,\n" +
+                                                  "we recommend disabling Java2D's use of DirectDraw.\n" +
+                                                  "This setting will affect all applets, but is unlikely\n" +
+                                                  "to slow other applets down significantly. May we update\n" +
+                                                  "your deployment.properties to turn off DirectDraw for\n" +
+                                                  "applets? You can change this back later if necessary\n" +
+                                                  "using the Java Control Panel, Java tab, under Java\n" +
+                                                  "Applet Runtime Settings.",
+                                                  "Update deployment.properties?",
+                                                  JOptionPane.YES_NO_CANCEL_OPTION,
+                                                  JOptionPane.QUESTION_MESSAGE,
+                                                  null,
+                                                  new Object[] {
+                                                      "Yes",
+                                                      "No",
+                                                      "No, Don't Ask Again"
+                                                  },
+                                                  "Yes");
+        }
+
+        if (option < 0 ||
+            option == 1)
+            return; // No
+
+        if (option == 2) {
+            try {
+                dontAskFile.createNewFile();
+            } catch (IOException e) {
+            }
+            return; // No, Don't Ask Again
+        }
+
+        try {
+            // Must update deployment.properties
+            File propsDir = new File(System.getProperty("user.home") + File.separator +
+                                     "Application Data/Sun/Java/Deployment");
+            if (!propsDir.exists())
+                // Don't know what's going on or how to set this permanently
+                return;
+
+            File propsFile = new File(propsDir, "deployment.properties");
+            if (!propsFile.exists())
+                // Don't know what's going on or how to set this permanently
+                return;
+
+            Properties props = new Properties();
+            InputStream input = new BufferedInputStream(new FileInputStream(propsFile));
+            props.load(input);
+            input.close();
+            // Search through the keys looking for JRE versions
+            Set/*<String>*/ jreVersions = new HashSet/*<String>*/();
+            for (Iterator/*<String>*/ iter = props.keySet().iterator(); iter.hasNext(); ) {
+                String key = (String) iter.next();
+                if (key.startsWith(JRE_PREFIX)) {
+                    int idx = key.lastIndexOf(".");
+                    if (idx >= 0 && idx > JRE_PREFIX.length()) {
+                        String jreVersion = key.substring(JRE_PREFIX.length(), idx);
+                        jreVersions.add(jreVersion);
+                    }
+                }
+            }
+
+            // Make sure the currently-running JRE shows up in this set to
+            // avoid repeated displays of the dialog. It might not in some
+            // upgrade scenarios where there was a pre-existing
+            // deployment.properties and the new Java Control Panel hasn't
+            // been run yet.
+            jreVersions.add(System.getProperty("java.version"));
+
+            // OK, now that we know all JRE versions covered by the
+            // deployment.properties, check out the args for each and update
+            // them
+            for (Iterator/*<String>*/ iter = jreVersions.iterator(); iter.hasNext(); ) {
+                String version = (String) iter.next();
+                String argKey = JRE_PREFIX + version + ".args";
+                String argVal = props.getProperty(argKey);
+                if (argVal == null) {
+                    argVal = NODDRAW_PROP;
+                } else if (argVal.indexOf(NODDRAW_PROP) < 0) {
+                    argVal = argVal + " " + NODDRAW_PROP;
+                }
+                props.setProperty(argKey, argVal);
+            }
+
+            OutputStream output = new BufferedOutputStream(new FileOutputStream(propsFile));
+            props.store(output, null);
+            output.close();
+
+            if (!getBooleanParameter("noddraw.check.silent")) {
+                // Tell user we're done
+                JOptionPane.showMessageDialog(null,
+                                              "For best robustness, we recommend you now exit and\n" +
+                                              "restart your web browser. (Note: clicking \"OK\" will\n" +
+                                              "not exit your browser.)",
+                                              "Browser Restart Recommended",
+                                              JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
