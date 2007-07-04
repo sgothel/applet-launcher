@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.10 $
- * $Date: 2007/07/04 20:24:00 $
+ * $Revision: 1.11 $
+ * $Date: 2007/07/04 20:27:08 $
  * $State: Exp $
  */
 
@@ -314,10 +314,10 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * An applet using JOGL as an extension. Note that this example does
  * not specify a codebase, instead specifying all of its archive tag
- * elements with absolute URLs (which in a real applet tag must be all
- * on one line). Note also the use of the <code>noddraw.check</code>
- * parameter to disable the use of DirectDraw since using JOGL implies
- * the use of OpenGL.
+ * elements with absolute URLs (split here for readability; in a real
+ * applet tag they must be all on one line). Note also the use of the
+ * <code>noddraw.check</code> parameter to disable the use of
+ * DirectDraw since using JOGL implies the use of OpenGL.
  *
  * <pre>
  * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
