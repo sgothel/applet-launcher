@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.9 $
- * $Date: 2007/07/04 20:22:54 $
+ * $Revision: 1.10 $
+ * $Date: 2007/07/04 20:24:00 $
  * $State: Exp $
  */
 
@@ -264,6 +264,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * &lt;param name="noddraw.check" value="true"&gt;
  * </pre>
  *
+ * <p>
+ *
  * will cause the applet launcher, when run on Windows, to check to
  * see whether DirectDraw is enabled and, if so, will prompt the user
  * with a dialog box asking to disable it. A browser restart is
@@ -279,6 +281,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * &lt;param name="noddraw.check" value="true"&gt;
  * &lt;param name="noddraw.check.silent" value="true"&gt;
  * </pre>
+ *
+ * <p>
  *
  * In this case it will not be obvious to the end user that a browser
  * restart might be required for best robustness, but you could
