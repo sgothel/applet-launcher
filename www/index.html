@@ -300,14 +300,20 @@
  
  <h3>JNLPAppletLauncher</h3>
  
+ <p>
+ 
  The master jar file for the JNLPAppletLauncher is located at the following URL:
  <pre>
  http://download.java.net/media/applet-launcher/applet-launcher.jar
  </pre>
  
+ <p>
+ 
  This jar needs to be added to your archive parameter.
  
  <h3>Java 3D</h3>
+ 
+ <p>
  
  The early access release of Java 3D 1.5.1 and later support the
  JNLPAppletLauncher. You will need to add the following URLs to your
@@ -319,6 +325,8 @@
  http://download.java.net/media/java3d/webstart/early-access/vecmath/1.5.1/vecmath.jar
  </pre>
 
+ <p>
+ 
  and refer to the following in one of your <code>jnlpExtension</code> parameters:
 
  <pre>
@@ -327,6 +335,8 @@
 
  <h3>JOGL</h3>
 
+ <p>
+ 
  JOGL 1.1.1-rc3 and later support the JNLPAppletLauncher. You will
  need to add the following URL to your archive parameter:
 
@@ -334,6 +344,8 @@
  http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar
  </pre>
 
+ <p>
+ 
  Because JOGL depends on the GlueGen runtime, you will also need to
  add the following URL to your archive parameter:
 
@@ -341,6 +353,8 @@
  http://download.java.net/media/gluegen/webstart/gluegen-rt.jar
  </pre>
 
+ <p>
+ 
  Finally, add the following to one of your
  <code>jnlpExtension</code> parameters:
 
@@ -348,12 +362,16 @@
  http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp
  </pre>
 
+ <p>
+ 
  Note that the jogl.jnlp extension will automatically pull in the
  native code associated with the GlueGen runtime, so you don't have
  to separately refer to the gluegen-rt.jnlp file.
 
  <h3>JOAL</h3>
 
+ <p>
+ 
  JOAL 1.1.1 and later support the JNLPAppletLauncher. You will need
  to add the following URL to your archive parameter:
 
@@ -361,6 +379,8 @@
  http://download.java.net/media/joal/webstart/joal.jar
  </pre>
 
+ <p>
+ 
  Because JOAL, like JOGL, depends on the GlueGen runtime, you will
  also need to add the following URL to your archive parameter:
 
@@ -368,6 +388,8 @@
  http://download.java.net/media/gluegen/webstart/gluegen-rt.jar
  </pre>
 
+ <p>
+ 
  (If you are using both JOGL and JOAL, you only need to refer to
  gluegen-rt.jar once in your archive parameter.)
 
@@ -380,6 +402,8 @@
  http://download.java.net/media/joal/webstart/joal.jnlp
  </pre>
 
+ <p>
+ 
  Note that the joal.jnlp extension will automatically pull in the
  native code associated with the GlueGen runtime, so you don't have
  to separately refer to the gluegen-rt.jnlp file.
@@ -415,6 +439,8 @@
   }
  </pre>
 
+ <p>
+ 
  and wherever you would call <code>System.loadLibrary()</code> (from
  within an <code>AccessController.doPrivileged()</code> block) to
  load your extension's native code, call the above
@@ -431,6 +457,8 @@
 
  <h2>Acknowledgments</h2>
 
+ <p>
+ 
  The JNLPAppletLauncher was developed by Kevin Rushforth, Kenneth
  Russell, and Chien Yang. It is based on the former
  JOGLAppletLauncher developed by Lilian Chamontin.
