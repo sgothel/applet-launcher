@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.7 $
- * $Date: 2007/07/04 20:17:42 $
+ * $Revision: 1.8 $
+ * $Date: 2007/07/04 20:20:57 $
  * $State: Exp $
  */
 
@@ -308,15 +308,19 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * An applet using JOGL as an extension. Note that this example does
  * not specify a codebase, instead specifying all of its archive tag
- * elements with absolute URLs. Note also the use of the
- * <code>noddraw.check</code> parameter to disable the use of
- * DirectDraw since using JOGL implies the use of OpenGL.
+ * elements with absolute URLs (which in a real applet tag must be all
+ * on one line). Note also the use of the <code>noddraw.check</code>
+ * parameter to disable the use of DirectDraw since using JOGL implies
+ * the use of OpenGL.
  *
  * <pre>
  * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
  *      width=600
  *      height=400
- *      archive="http://download.java.net/media/applet-launcher/applet-launcher.jar,http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar"&gt;
+ *      archive="http://download.java.net/media/applet-launcher/applet-launcher.jar,
+ *               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,
+ *               http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,
+ *               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar"&gt;
  *   &lt;param name="subapplet.classname" value="demos.applets.GearsApplet"&gt;
  *   &lt;param name="subapplet.displayname" value="JOGL Gears Applet"&gt;
  *   &lt;param name="noddraw.check" value="true"&gt;
@@ -339,7 +343,12 @@ import org.xml.sax.helpers.DefaultHandler;
  * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
  *      width=600
  *      height=400
- *      archive="http://download.java.net/media/applet-launcher/applet-launcher.jar,http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar,http://download.java.net/media/joal/webstart/joal.jar,http://download.java.net/media/joal/webstart/joal-demos.jar"&gt;
+ *      archive="http://download.java.net/media/applet-launcher/applet-launcher.jar,
+ *               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,
+ *               http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,
+ *               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar,
+ *               http://download.java.net/media/joal/webstart/joal.jar,
+ *               http://download.java.net/media/joal/webstart/joal-demos.jar"&gt;
  *   &lt;param name="subapplet.classname" VALUE="demos.applets.GearsJOALApplet"&gt;
  *   &lt;param name="subapplet.displayname" VALUE="JOGL / JOAL Gears Applet"&gt;
  *   &lt;param name="noddraw.check" value="true"&gt;
