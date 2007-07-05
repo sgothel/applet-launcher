@@ -162,6 +162,27 @@
  The <a href="#EXAMPLES">examples</a> show how to use the
  JNLPAppletLauncher in a few different scenarios.
 
+ <h2>The codebase_lookup parameter</h2>
+
+ <p>
+
+ This applet parameter is not currently well documented, but it
+ disables certain legacy behavior of the Java Plug-In. Before the
+ introduction of jar files, applets used to host their class files
+ and resources as flat files on the web server. Once jar files were
+ introduced, it was possible to improve the efficiency of resource
+ loading for applets, but (apparently) not without breaking
+ compatibility. An applet can specify the parameter
+
+ <pre>
+ &lt;param name="codebase_lookup" value="false"&gt;
+ </pre>
+
+ <p>
+
+ to improve efficiency of its loading if it does not rely on
+ fetching flat files from the web server off the codebase.
+
  <h2>Applets using the OpenGL(r) 3D API</h2>
 
  <p>
@@ -224,6 +245,7 @@
       height=480
       codebase="http://download.java.net/media/java3d/applets/applet-test/"
       archive="applet-launcher.jar,j3d-examples.jar,j3dcore.jar,j3dutils.jar,vecmath.jar"&gt;
+   &lt;param name="codebase_lookup" value="false"&gt;
    &lt;param name="subapplet.classname" value="org.jdesktop.j3d.examples.four_by_four.FourByFour"&gt;
    &lt;param name="subapplet.displayname" value="Java 3D Four by Four Applet"&gt;
    &lt;param name="jnlpNumExtensions" value="1"&gt;
@@ -250,6 +272,7 @@
                http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,
                http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,
                http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar"&gt;
+   &lt;param name="codebase_lookup" value="false"&gt;
    &lt;param name="subapplet.classname" value="demos.applets.GearsApplet"&gt;
    &lt;param name="subapplet.displayname" value="JOGL Gears Applet"&gt;
    &lt;param name="noddraw.check" value="true"&gt;
@@ -278,6 +301,7 @@
                http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar,
                http://download.java.net/media/joal/webstart/joal.jar,
                http://download.java.net/media/joal/webstart/joal-demos.jar"&gt;
+   &lt;param name="codebase_lookup" value="false"&gt;
    &lt;param name="subapplet.classname" VALUE="demos.applets.GearsJOALApplet"&gt;
    &lt;param name="subapplet.displayname" VALUE="JOGL / JOAL Gears Applet"&gt;
    &lt;param name="noddraw.check" value="true"&gt;
@@ -460,7 +484,7 @@
  <p>
  
  The JNLPAppletLauncher was developed by Kevin Rushforth, Kenneth
- Russell, and Chien Yang. It is based on the former
+ Russell, and Chien Yang. It is based on the earlier
  JOGLAppletLauncher developed by Lilian Chamontin.
 
 </body>
