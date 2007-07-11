@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.13 $
- * $Date: 2007/07/05 16:06:47 $
+ * $Revision: 1.14 $
+ * $Date: 2007/07/11 17:18:12 $
  * $State: Exp $
  */
 
@@ -310,6 +310,15 @@ import org.xml.sax.helpers.DefaultHandler;
  * potentially document the need to try restarting the browser in case
  * of instability.
  *
+ * <h2>Scripting Support</h2>
+ *
+ * <p>
+ *
+ * The JNLPAppletLauncher supports interaction with the sub-applet via
+ * the <code>getSubApplet()</code> method. Calling this method from
+ * JavaScript will return the subordinate applet with which you can
+ * then interact via JavaScript.
+ *
  * <h2><a name="EXAMPLES">Examples</a></h2>
  *
  * <p>
@@ -566,27 +575,6 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 
 public class JNLPAppletLauncher extends Applet {
-
-    private static void loadLibraryInternal(String libraryName) {
-        String sunAppletLauncher = System.getProperty("sun.jnlp.applet.launcher");
-        boolean usingJNLPAppletLauncher =
-            Boolean.valueOf(sunAppletLauncher).booleanValue();
-
-        if (usingJNLPAppletLauncher) {
-            try {
-                Class jnlpAppletLauncherClass =
-                    Class.forName("org.jdesktop.applet.util.JNLPAppletLauncher");
-                Method jnlpLoadLibraryMethod =
-                    jnlpAppletLauncherClass.getDeclaredMethod("loadLibrary",
-                                                              new Class[] { String.class });
-                jnlpLoadLibraryMethod.invoke(null, new Object[] { libraryName });
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            System.loadLibrary(libraryName);
-        }
-    }
 
     private static final boolean VERBOSE = false;
     private static final boolean DEBUG = true;
@@ -850,6 +838,12 @@ public class JNLPAppletLauncher extends Applet {
             }
         }
 
+    }
+
+    /** Helper method to make it easier to call methods on the
+        sub-applet from JavaScript. */
+    public Applet getSubApplet() {
+        return subApplet;
     }
 
     /**
