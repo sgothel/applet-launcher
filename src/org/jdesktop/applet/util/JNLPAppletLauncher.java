@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.16 $
- * $Date: 2007/07/20 23:44:31 $
+ * $Revision: 1.17 $
+ * $Date: 2007/07/20 23:46:40 $
  * $State: Exp $
  */
 
@@ -445,7 +445,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * <code>jnlpExtension</code> parameters for a few standard
  * extensions.
  * 
- * <h3>JNLPAppletLauncher</h3>
+ * <h4>JNLPAppletLauncher</h4>
  * 
  * <p>
  * 
@@ -458,7 +458,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  * This jar needs to be added to your archive parameter.
  * 
- * <h3>Java 3D</h3>
+ * <h4>Java 3D</h4>
  * 
  * <p>
  * 
@@ -480,7 +480,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * http://download.java.net/media/java3d/webstart/early-access/java3d-1.5.1-exp.jnlp
  * </pre>
  *
- * <h3>JOGL</h3>
+ * <h4>JOGL</h4>
  *
  * <p>
  * 
@@ -515,7 +515,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * native code associated with the GlueGen runtime, so you don't have
  * to separately refer to the gluegen-rt.jnlp file.
  *
- * <h3>JOAL</h3>
+ * <h4>JOAL</h4>
  *
  * <p>
  * 
