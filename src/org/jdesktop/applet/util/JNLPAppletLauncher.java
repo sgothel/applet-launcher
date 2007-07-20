@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.17 $
- * $Date: 2007/07/20 23:46:40 $
+ * $Revision: 1.18 $
+ * $Date: 2007/07/20 23:59:42 $
  * $State: Exp $
  */
 
@@ -569,6 +569,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *      String sunAppletLauncher = System.getProperty("sun.jnlp.applet.launcher");
  *      boolean usingJNLPAppletLauncher =
  *          Boolean.valueOf(sunAppletLauncher).booleanValue();
+ *
  *      if (usingJNLPAppletLauncher) {
  *          try {
  *              Class jnlpAppletLauncherClass =
@@ -578,7 +579,17 @@ import org.xml.sax.helpers.DefaultHandler;
  *                                                            new Class[] { String.class });
  *              jnlpLoadLibraryMethod.invoke(null, new Object[] { libraryName });
  *          } catch (Exception e) {
- *              throw new RuntimeException(e);
+ *              Throwable t = e;
+ *              if (t instanceof InvocationTargetException) {
+ *                  t = ((InvocationTargetException) t).getTargetException();
+ *              }
+ *              if (t instanceof Error)
+ *                  throw (Error) t;
+ *              if (t instanceof RuntimeException) {
+ *                  throw (RuntimeException) t;
+ *              }
+ *              // Throw UnsatisfiedLinkError for best compatibility with System.loadLibrary()
+ *              throw (UnsatisfiedLinkError) new UnsatisfiedLinkError().initCause(e);
  *          }
  *      } else {
  *          System.loadLibrary(libraryName);
