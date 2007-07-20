@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.14 $
- * $Date: 2007/07/11 17:18:12 $
+ * $Revision: 1.15 $
+ * $Date: 2007/07/20 23:29:00 $
  * $State: Exp $
  */
 
@@ -243,12 +243,13 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * <p>
  *
- * This applet parameter is not currently well documented, but it
- * disables certain legacy behavior of the Java Plug-In. Before the
- * introduction of jar files, applets used to host their class files
- * and resources as flat files on the web server. Once jar files were
- * introduced, it was possible to improve the efficiency of resource
- * loading for applets, but (apparently) not without breaking
+ * This applet parameter was not well documented until <a
+ * href="http://java.sun.com/javase/6/docs/technotes/guides/plugin/developer_guide/special_attributes.html#codebase">recently</a>,
+ * but it disables certain legacy behavior of the Java Plug-In. Before
+ * the introduction of jar files, applets used to host their class
+ * files and resources as flat files on the web server. Once jar files
+ * were introduced, it was possible to improve the efficiency of
+ * resource loading for applets, but (apparently) not without breaking
  * compatibility. An applet can specify the parameter
  *
  * <pre>

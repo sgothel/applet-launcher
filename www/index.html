@@ -166,12 +166,13 @@
 
  <p>
 
- This applet parameter is not currently well documented, but it
- disables certain legacy behavior of the Java Plug-In. Before the
- introduction of jar files, applets used to host their class files
- and resources as flat files on the web server. Once jar files were
- introduced, it was possible to improve the efficiency of resource
- loading for applets, but (apparently) not without breaking
+ This applet parameter was not well documented until <a
+ href="http://java.sun.com/javase/6/docs/technotes/guides/plugin/developer_guide/special_attributes.html#codebase">recently</a>,
+ but it disables certain legacy behavior of the Java Plug-In. Before
+ the introduction of jar files, applets used to host their class
+ files and resources as flat files on the web server. Once jar files
+ were introduced, it was possible to improve the efficiency of
+ resource loading for applets, but (apparently) not without breaking
  compatibility. An applet can specify the parameter
 
  <pre>
