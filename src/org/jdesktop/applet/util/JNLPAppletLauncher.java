@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.15 $
- * $Date: 2007/07/20 23:29:00 $
+ * $Revision: 1.16 $
+ * $Date: 2007/07/20 23:44:31 $
  * $State: Exp $
  */
 
@@ -231,6 +231,13 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * <p>
  *
+ * <b>Note</b> that if you are planning to call into your applet from
+ * JavaScript that there are some <a
+ * href="#SCRIPTING">scripting-related caveats</a> that you need to be
+ * aware of.
+ *
+ * <p>
+ *
  * The <code>jnlpExtension</code> parameters passed to the
  * JNLPAppletLauncher must be specified with absolute URLs.
  *
@@ -311,7 +318,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * potentially document the need to try restarting the browser in case
  * of instability.
  *
- * <h2>Scripting Support</h2>
+ * <h2><a name="SCRIPTING">Scripting Support</a></h2>
  *
  * <p>
  *
@@ -319,6 +326,35 @@ import org.xml.sax.helpers.DefaultHandler;
  * the <code>getSubApplet()</code> method. Calling this method from
  * JavaScript will return the subordinate applet with which you can
  * then interact via JavaScript.
+ *
+ * <p>
+ *
+ * There are currently some scripting-related caveats associated with
+ * <a href="#ORGANIZING">pulling jar files from multiple locations</a>
+ * for a particular applet. In particular, it appears that the
+ * LiveConnect security model on Mac OS X in the Safari browser
+ * prohibits JavaScript from one domain from communicating with Java
+ * code (such as an applet) downloaded from another domain. This is
+ * correct according to older versions of the LiveConnect
+ * specification, although some more recent implementations of
+ * LiveConnect allow this, restricting the privileges of such calls in
+ * other ways.
+ *
+ * <p>
+ *
+ * The workaround for this problem seems to be to host the
+ * <code>applet-launcher.jar</code> on your web site if you need to
+ * talk to your applet from JavaScript. Your applet's jars will likely
+ * also need to be hosted from the same web server. If you talk to
+ * extension APIs in your <code>archive</code> tag directly from
+ * JavaScript, you may find it necessary to host those jars on your
+ * web server as well.
+ *
+ * <p>
+ *
+ * From a practical standpoint, most applet developers using
+ * JavaScript with the JNLPAppletLauncher will only need to re-host at
+ * most <code>applet-launcher.jar</code> on their web site.
  *
  * <h2><a name="EXAMPLES">Examples</a></h2>
  *
