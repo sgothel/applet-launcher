@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.18 $
- * $Date: 2007/07/20 23:59:42 $
+ * $Revision: 1.19 $
+ * $Date: 2007/07/21 00:11:26 $
  * $State: Exp $
  */
 
@@ -1878,6 +1878,11 @@ public class JNLPAppletLauncher extends Applet {
         }
 
         String fullLibraryName = (String) nativeLibMap.get(libraryName);
+        if (fullLibraryName == null) {
+            // Throw UnsatisfiedLinkError to try to match behavior of System.loadLibrary()
+            throw new UnsatisfiedLinkError(libraryName);
+        }
+
         if (DEBUG) {
             System.err.println("    loading: " + fullLibraryName + "");
         }
