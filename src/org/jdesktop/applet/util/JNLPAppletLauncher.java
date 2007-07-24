@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.19 $
- * $Date: 2007/07/21 00:11:26 $
+ * $Revision: 1.20 $
+ * $Date: 2007/07/24 20:59:03 $
  * $State: Exp $
  */
 
@@ -194,7 +194,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * This capability means that your applets can refer directly to
  * extensions like Java 3D and JOGL hosted on Sun's web servers
  * without having to duplicate their jar files on your web server.
- * 
+ *
  * <p>
  *
  * To use this capability effectively with the JNLPAppletLauncher, you
@@ -267,6 +267,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * to improve efficiency of its loading if it does not rely on
  * fetching flat files from the web server off the codebase.
+ * We recommend setting this parameter.
  *
  * <h2>Applets using the OpenGL(r) 3D API</h2>
  *
@@ -360,26 +361,6 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * <p>
  *
- * An applet using Java 3D as an extension:
- *
- * <pre>
- * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
- *      width=640
- *      height=480
- *      codebase="http://download.java.net/media/java3d/applets/applet-test/"
- *      archive="applet-launcher.jar,j3d-examples.jar,j3dcore.jar,j3dutils.jar,vecmath.jar"&gt;
- *   &lt;param name="codebase_lookup" value="false"&gt;
- *   &lt;param name="subapplet.classname" value="org.jdesktop.j3d.examples.four_by_four.FourByFour"&gt;
- *   &lt;param name="subapplet.displayname" value="Java 3D Four by Four Applet"&gt;
- *   &lt;param name="jnlpNumExtensions" value="1"&gt;
- *   &lt;param name="jnlpExtension1"
- *      value="http://download.java.net/media/java3d/webstart/early-access/java3d-1.5.1-exp.jnlp"&gt;
- *   &lt;param name="progressbar" value="true"&gt;
- * &lt;/applet&gt;
- * </pre>
- *
- * <p>
- *
  * An applet using JOGL as an extension. Note that this example does
  * not specify a codebase, instead specifying all of its archive tag
  * elements with absolute URLs (split here for readability; in a real
@@ -405,16 +386,16 @@ import org.xml.sax.helpers.DefaultHandler;
  *          value="http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp"&gt;
  * &lt;/applet&gt;
  * </pre>
- * 
+ *
  * <p>
- * 
+ *
  * An applet using both JOGL and JOAL as extensions. Note again that
  * all code resources are specified with absolute URLs. In this
  * example the unsigned applet pulls in code from both
  * <code>jogl-demos.jar</code> and <code>joal-demos.jar</code>. Note
  * again the use of the <code>noddraw.check</code> parameter.
- * 
- * <pre> 
+ *
+ * <pre>
  * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
  *      width=600
  *      height=400
@@ -435,55 +416,99 @@ import org.xml.sax.helpers.DefaultHandler;
  *   &lt;param name="jnlpExtension2"
  *          value="http://download.java.net/media/joal/webstart/joal.jnlp"&gt;
  * &lt;/applet&gt;
- * </pre> 
- * 
- * <h2> Locations of Standard Extensions </h2>
- * 
+ * </pre>
+ *
  * <p>
- * 
+ * An applet using Java 3D as an extension:
+ *
+ * <pre>
+ * &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
+ *      width=400
+ *      height=300
+ *      archive="myapplet.jar,
+ *               http://download.java.net/media/applet-launcher/applet-launcher.jar,
+ *               http://download.java.net/media/java3d/webstart/release/j3d/1.5.1/j3dcore.jar,
+ *               http://download.java.net/media/java3d/webstart/release/j3d/1.5.1/j3dutils.jar,
+ *               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,
+ *               http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,
+ *               http://download.java.net/media/java3d/webstart/release/vecmath/1.5.1/vecmath.jar"&gt;
+ *   &lt;param name="codebase_lookup" value="false"&gt;
+ *   &lt;param name="subapplet.classname" value="mypkg.MyApplet"&gt;
+ *   &lt;param name="subapplet.displayname" value="My Java 3D Applet"&gt;
+ *   &lt;param name="jnlpNumExtensions" value="1"&gt;
+ *   &lt;param name="jnlpExtension1" value="http://download.java.net/media/java3d/webstart/release/java3d-1.5.1.jnlp"&gt;
+ *   &lt;param name="progressbar" value="true"&gt;
+ *   &lt;param name="noddraw.check" value="true"&gt;
+ * &lt;/applet&gt;
+ * </pre>
+ *
+ * <p>
+ * Note that the JOGL jar files are also included in this example. This is
+ * necessary in order to run on Mac OS X, for which Java 3D always uses
+ * JOGL to render.
+ *
+ * <h2> Locations of Standard Extensions </h2>
+ *
+ * <p>
+ *
  * This section describes how to set up the <code>archive</code> and
  * <code>jnlpExtension</code> parameters for a few standard
  * extensions.
- * 
+ *
  * <h4>JNLPAppletLauncher</h4>
- * 
+ *
  * <p>
- * 
+ *
  * The master jar file for the JNLPAppletLauncher is located at the following URL:
  * <pre>
  * http://download.java.net/media/applet-launcher/applet-launcher.jar
  * </pre>
- * 
+ *
  * <p>
- * 
+ *
  * This jar needs to be added to your archive parameter.
- * 
+ *
  * <h4>Java 3D</h4>
- * 
+ *
  * <p>
- * 
- * The early access release of Java 3D 1.5.1 and later support the
+ *
+ * Java 3D 1.5.1 and later supports the
  * JNLPAppletLauncher. You will need to add the following URLs to your
  * archive parameter:
  *
  * <pre>
- * http://download.java.net/media/java3d/webstart/early-access/j3d/1.5.1/j3dcore.jar
- * http://download.java.net/media/java3d/webstart/early-access/j3d/1.5.1/j3dutils.jar
- * http://download.java.net/media/java3d/webstart/early-access/vecmath/1.5.1/vecmath.jar
+ * http://download.java.net/media/java3d/webstart/release/j3d/1.5.1/j3dcore.jar
+ * http://download.java.net/media/java3d/webstart/release/j3d/1.5.1/j3dutils.jar
+ * http://download.java.net/media/java3d/webstart/release/vecmath/1.5.1/vecmath.jar
  * </pre>
  *
- * <p>
- * 
- * and refer to the following in one of your <code>jnlpExtension</code> parameters:
+ * Then add the following to one of your <code>jnlpExtension</code> parameters:
  *
  * <pre>
- * http://download.java.net/media/java3d/webstart/early-access/java3d-1.5.1-exp.jnlp
+ * http://download.java.net/media/java3d/webstart/release/java3d-1.5.1.jnlp
  * </pre>
+ *
+ * If you want to deploy your applet on Mac OS X, you will also need to
+ * include JOGL by adding the following URLs to your archive parameter:
+ *
+ * <pre>
+ * http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar
+ * http://download.java.net/media/gluegen/webstart/gluegen-rt.jar
+ * </pre>
+ *
+ * Note that this will only work if Java 3D is not installed into the JRE as an
+ * extension. Since Apple ships their JRE with Java 3D pre-installed, the
+ * end-user must uninstall Java 3D in order for Java 3D applets to work on Mac.
+ * <p>
+ *
+ * Note that the Java 3D .jnlp extension will automatically pull in the
+ * native code associated with JOGL and the GlueGen runtime, so you don't have
+ * to separately refer to those .jnlp files.
  *
  * <h4>JOGL</h4>
  *
  * <p>
- * 
+ *
  * JOGL 1.1.1-rc3 and later support the JNLPAppletLauncher. You will
  * need to add the following URL to your archive parameter:
  *
@@ -492,7 +517,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * </pre>
  *
  * <p>
- * 
+ *
  * Because JOGL depends on the GlueGen runtime, you will also need to
  * add the following URL to your archive parameter:
  *
@@ -501,7 +526,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * </pre>
  *
  * <p>
- * 
+ *
  * Finally, add the following to one of your
  * <code>jnlpExtension</code> parameters:
  *
@@ -510,7 +535,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * </pre>
  *
  * <p>
- * 
+ *
  * Note that the jogl.jnlp extension will automatically pull in the
  * native code associated with the GlueGen runtime, so you don't have
  * to separately refer to the gluegen-rt.jnlp file.
@@ -518,7 +543,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * <h4>JOAL</h4>
  *
  * <p>
- * 
+ *
  * JOAL 1.1.1 and later support the JNLPAppletLauncher. You will need
  * to add the following URL to your archive parameter:
  *
@@ -527,7 +552,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * </pre>
  *
  * <p>
- * 
+ *
  * Because JOAL, like JOGL, depends on the GlueGen runtime, you will
  * also need to add the following URL to your archive parameter:
  *
@@ -536,7 +561,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * </pre>
  *
  * <p>
- * 
+ *
  * (If you are using both JOGL and JOAL, you only need to refer to
  * gluegen-rt.jar once in your archive parameter.)
  *
@@ -550,7 +575,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * </pre>
  *
  * <p>
- * 
+ *
  * Note that the joal.jnlp extension will automatically pull in the
  * native code associated with the GlueGen runtime, so you don't have
  * to separately refer to the gluegen-rt.jnlp file.
@@ -598,7 +623,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * </pre>
  *
  * <p>
- * 
+ *
  * and wherever you would call <code>System.loadLibrary()</code> (from
  * within an <code>AccessController.doPrivileged()</code> block) to
  * load your extension's native code, call the above
@@ -616,7 +641,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * <h2>Acknowledgments</h2>
  *
  * <p>
- * 
+ *
  * The JNLPAppletLauncher was developed by Kevin Rushforth, Kenneth
  * Russell, and Chien Yang. It is based on the earlier
  * JOGLAppletLauncher developed by Lilian Chamontin.
@@ -1861,9 +1886,9 @@ public class JNLPAppletLauncher extends Applet {
     /**
      * Method called by an extension such as JOGL or Java 3D to load the
      * specified library. Applications and applets should not call this method.
-     * 
+     *
      * @param libraryName name of the library to be loaded
-     * 
+     *
      * @throws SecurityException if the caller does not have permission to
      * call System.load
      */
@@ -2334,11 +2359,38 @@ public class JNLPAppletLauncher extends Applet {
     }
 
     //----------------------------------------------------------------------
-    // Helper routines for adding 
+    // Helper routines for adding
 
     // Get a "boolean" parameter
     private boolean getBooleanParameter(String parameterName) {
         return Boolean.valueOf(getParameter(parameterName)).booleanValue();
+    }
+
+    private String getDeploymentPropsDir() {
+        final String osName = System.getProperty("os.name").toLowerCase();
+        StringBuffer result = new StringBuffer();
+
+        result.append(System.getProperty("user.home"));
+        if (osName.startsWith("windows")) {
+            if (osName.indexOf("vista") != -1) {
+                result.append(File.separator).append("AppData").
+                        append(File.separator).append("LocalLow");
+            } else {
+                result.append(File.separator).append("Application Data");
+            }
+            result.append(File.separator).append("Sun").
+                    append(File.separator).append("Java").
+                    append(File.separator).append("Deployment");
+        } else if (osName.startsWith("mac")) {
+            result.append(File.separator).append("Library").
+                    append(File.separator).append("Caches").
+                    append(File.separator).append("Java");
+        } else {
+            result.append(File.separator).append(".java").
+                    append(File.separator).append("deployment");
+        }
+
+        return result.toString();
     }
 
     private void checkNoDDrawAndUpdateDeploymentProperties() {
@@ -2406,11 +2458,15 @@ public class JNLPAppletLauncher extends Applet {
 
         try {
             // Must update deployment.properties
-            File propsDir = new File(System.getProperty("user.home") + File.separator +
-                                     "Application Data/Sun/Java/Deployment");
-            if (!propsDir.exists())
+            File propsDir = new File(getDeploymentPropsDir());
+            if (!propsDir.exists()) {
                 // Don't know what's going on or how to set this permanently
+                JOptionPane.showMessageDialog(null,
+                                              "Unable to open properties file",
+                                              "Update properties failed",
+                                              JOptionPane.WARNING_MESSAGE);
                 return;
+            }
 
             File propsFile = new File(propsDir, "deployment.properties");
             if (!propsFile.exists())
