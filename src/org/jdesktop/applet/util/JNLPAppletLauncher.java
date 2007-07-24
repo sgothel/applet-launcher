@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.20 $
- * $Date: 2007/07/24 20:59:03 $
+ * $Revision: 1.21 $
+ * $Date: 2007/07/24 21:14:36 $
  * $State: Exp $
  */
 
@@ -427,16 +427,16 @@ import org.xml.sax.helpers.DefaultHandler;
  *      height=300
  *      archive="myapplet.jar,
  *               http://download.java.net/media/applet-launcher/applet-launcher.jar,
- *               http://download.java.net/media/java3d/webstart/release/j3d/1.5.1/j3dcore.jar,
- *               http://download.java.net/media/java3d/webstart/release/j3d/1.5.1/j3dutils.jar,
+ *               http://download.java.net/media/java3d/webstart/release/j3d/latest/j3dcore.jar,
+ *               http://download.java.net/media/java3d/webstart/release/j3d/latest/j3dutils.jar,
  *               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,
  *               http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,
- *               http://download.java.net/media/java3d/webstart/release/vecmath/1.5.1/vecmath.jar"&gt;
+ *               http://download.java.net/media/java3d/webstart/release/vecmath/latest/vecmath.jar"&gt;
  *   &lt;param name="codebase_lookup" value="false"&gt;
  *   &lt;param name="subapplet.classname" value="mypkg.MyApplet"&gt;
  *   &lt;param name="subapplet.displayname" value="My Java 3D Applet"&gt;
  *   &lt;param name="jnlpNumExtensions" value="1"&gt;
- *   &lt;param name="jnlpExtension1" value="http://download.java.net/media/java3d/webstart/release/java3d-1.5.1.jnlp"&gt;
+ *   &lt;param name="jnlpExtension1" value="http://download.java.net/media/java3d/webstart/release/java3d-latest.jnlp"&gt;
  *   &lt;param name="progressbar" value="true"&gt;
  *   &lt;param name="noddraw.check" value="true"&gt;
  * &lt;/applet&gt;
@@ -477,15 +477,15 @@ import org.xml.sax.helpers.DefaultHandler;
  * archive parameter:
  *
  * <pre>
- * http://download.java.net/media/java3d/webstart/release/j3d/1.5.1/j3dcore.jar
- * http://download.java.net/media/java3d/webstart/release/j3d/1.5.1/j3dutils.jar
- * http://download.java.net/media/java3d/webstart/release/vecmath/1.5.1/vecmath.jar
+ * http://download.java.net/media/java3d/webstart/release/j3d/latest/j3dcore.jar
+ * http://download.java.net/media/java3d/webstart/release/j3d/latest/j3dutils.jar
+ * http://download.java.net/media/java3d/webstart/release/vecmath/latest/vecmath.jar
  * </pre>
  *
  * Then add the following to one of your <code>jnlpExtension</code> parameters:
  *
  * <pre>
- * http://download.java.net/media/java3d/webstart/release/java3d-1.5.1.jnlp
+ * http://download.java.net/media/java3d/webstart/release/java3d-latest.jnlp
  * </pre>
  *
  * If you want to deploy your applet on Mac OS X, you will also need to
