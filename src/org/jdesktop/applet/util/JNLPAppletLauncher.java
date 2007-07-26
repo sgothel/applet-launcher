@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.21 $
- * $Date: 2007/07/24 21:14:36 $
+ * $Revision: 1.22 $
+ * $Date: 2007/07/26 20:18:29 $
  * $State: Exp $
  */
 
@@ -911,6 +911,20 @@ public class JNLPAppletLauncher extends Applet {
             }
         }
 
+    }
+
+    /* @Override */
+    public void stop(){
+        if (subApplet != null) {
+            subApplet.stop();
+        }
+    }
+
+    /* @Override */
+    public void destroy(){
+        if (subApplet != null) {
+            subApplet.destroy();
+        }
     }
 
     /** Helper method to make it easier to call methods on the
