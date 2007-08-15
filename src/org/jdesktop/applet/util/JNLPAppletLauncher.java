@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.22 $
- * $Date: 2007/07/26 20:18:29 $
+ * $Revision: 1.23 $
+ * $Date: 2007/08/15 22:39:31 $
  * $State: Exp $
  */
 
@@ -2373,7 +2373,7 @@ public class JNLPAppletLauncher extends Applet {
     }
 
     //----------------------------------------------------------------------
-    // Helper routines for adding
+    // Helper routines for adding -Dsun.java2d.noddraw=true to deployment.properties
 
     // Get a "boolean" parameter
     private boolean getBooleanParameter(String parameterName) {
@@ -2475,17 +2475,14 @@ public class JNLPAppletLauncher extends Applet {
             File propsDir = new File(getDeploymentPropsDir());
             if (!propsDir.exists()) {
                 // Don't know what's going on or how to set this permanently
-                JOptionPane.showMessageDialog(null,
-                                              "Unable to open properties file",
-                                              "Update properties failed",
-                                              JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             File propsFile = new File(propsDir, "deployment.properties");
-            if (!propsFile.exists())
+            if (!propsFile.exists()) {
                 // Don't know what's going on or how to set this permanently
                 return;
+            }
 
             Properties props = new Properties();
             InputStream input = new BufferedInputStream(new FileInputStream(propsFile));
