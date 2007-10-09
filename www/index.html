@@ -518,6 +518,7 @@
       boolean usingJNLPAppletLauncher =
           Boolean.valueOf(sunAppletLauncher).booleanValue();
 
+      boolean loaded = false;
       if (usingJNLPAppletLauncher) {
           try {
               Class jnlpAppletLauncherClass =
@@ -526,6 +527,11 @@
                   jnlpAppletLauncherClass.getDeclaredMethod("loadLibrary",
                                                             new Class[] { String.class });
               jnlpLoadLibraryMethod.invoke(null, new Object[] { libraryName });
+              loaded = true;
+          } catch (ClassNotFoundException ex) {
+              System.err.println("loadLibrary(" + libName + ")");
+              System.err.println(ex);
+              System.err.println("Attempting to use System.loadLibrary instead");
           } catch (Exception e) {
               Throwable t = e;
               if (t instanceof InvocationTargetException) {
@@ -539,7 +545,9 @@
               // Throw UnsatisfiedLinkError for best compatibility with System.loadLibrary()
               throw (UnsatisfiedLinkError) new UnsatisfiedLinkError().initCause(e);
           }
-      } else {
+      }
+
+      if (!loaded) {
           System.loadLibrary(libraryName);
       }
   }
