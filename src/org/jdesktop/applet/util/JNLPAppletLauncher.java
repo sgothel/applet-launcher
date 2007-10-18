@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.24 $
- * $Date: 2007/10/09 18:17:16 $
+ * $Revision: 1.25 $
+ * $Date: 2007/10/18 22:48:10 $
  * $State: Exp $
  */
 
@@ -690,7 +690,7 @@ public class JNLPAppletLauncher extends Applet {
     private static final String DONT_ASK = ".dont_ask";
 
     // Optional progress bar
-    private JProgressBar progressBar;
+    private JProgressBar progressBar = null;
 
     /*
      * The following variables are defined per-applet, but we can assert that
@@ -1513,16 +1513,23 @@ public class JNLPAppletLauncher extends Applet {
         assert cacheDir.isDirectory();
         assert nativeTmpDir.isDirectory();
 
-        String urlString = url.toExternalForm();
+        // 6618105: Map '\' to '/' prior to stripping off the path
+        String urlString = url.toExternalForm().replace('\\', '/');
         String nativeFileName = urlString.substring(urlString.lastIndexOf("/") + 1);
+        File nativeFile = new File(cacheDir, nativeFileName);
+        // Make sure the file is not "." or ".."
+        if (nativeFile.isDirectory()) {
+            throw new IOException(nativeFile + " is a directory");
+        }
+
         String tmpStr = nativeFileName;
         int idx = nativeFileName.lastIndexOf(".");
         if (idx > 0) {
             tmpStr = nativeFileName.substring(0, idx);
         }
         String indexFileName = tmpStr + ".idx";
-        File nativeFile = new File(cacheDir, nativeFileName);
         File indexFile = new File(cacheDir, indexFileName);
+
         if (VERBOSE) {
             System.err.println("nativeFile = " + nativeFile);
             System.err.println("indexFile = " + indexFile);
@@ -1539,7 +1546,7 @@ public class JNLPAppletLauncher extends Applet {
             for (Iterator iter = headerFields.entrySet().iterator(); iter.hasNext(); ) {
                 Entry/*<String,List<String>>*/ e = (Entry) iter.next();
                 for (Iterator iter2 = ((List/*<String>*/) e.getValue()).iterator(); iter2.hasNext(); ) {
-                    String s = (String) iter.next();
+                    String s = (String) iter2.next();
                     if (e.getKey() != null) {
                         System.err.print(e.getKey() + ": ");
                     }
@@ -1948,38 +1955,46 @@ public class JNLPAppletLauncher extends Applet {
     }
 
     private void displayMessage(final String message) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                progressBar.setString(message);
-            }
-        });
+        if (progressBar != null) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    progressBar.setString(message);
+                }
+            });
+        }
     }
 
     private void displayError(final String errorMessage) {
         // Log message on Java console and display in applet progress bar
         Logger.getLogger("global").severe(errorMessage);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                progressBar.setString("Error : " + errorMessage);
-            }
-        });
+        if (progressBar != null) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    progressBar.setString("Error : " + errorMessage);
+                }
+            });
+        }
     }
 
     private void setProgress(final int value) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                progressBar.setValue(value);
-            }
-        });
+        if (progressBar != null) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    progressBar.setValue(value);
+                }
+            });
+        }
     }
 
     private void initLoaderLayout() {
         setLayout(new BorderLayout());
         loaderPanel = new JPanel(new BorderLayout());
-        progressBar = new JProgressBar(0, 100);
-        progressBar.setBorderPainted(true);
-        progressBar.setStringPainted(true);
-        progressBar.setString("Loading...");
+        if (getBooleanParameter("progressbar")) {
+            progressBar = new JProgressBar(0, 100);
+            progressBar.setBorderPainted(true);
+            progressBar.setStringPainted(true);
+            progressBar.setString("Loading...");
+        }
         boolean includeImage = false;
         ImageIcon image = null;
         if (subAppletImageURL != null) {
@@ -1989,9 +2004,13 @@ public class JNLPAppletLauncher extends Applet {
         add(loaderPanel, BorderLayout.SOUTH);
         if (includeImage) {
             loaderPanel.add(new JLabel(image), BorderLayout.CENTER);
-            loaderPanel.add(progressBar, BorderLayout.SOUTH);
+            if (progressBar != null) {
+                loaderPanel.add(progressBar, BorderLayout.SOUTH);
+            }
         } else {
-            loaderPanel.add(progressBar, BorderLayout.CENTER);
+            if (progressBar != null) {
+                loaderPanel.add(progressBar, BorderLayout.CENTER);
+            }
         }
     }
 
