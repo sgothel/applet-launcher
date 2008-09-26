@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.25 $
- * $Date: 2007/10/18 22:48:10 $
+ * $Revision: 1.26 $
+ * $Date: 2008/09/26 00:21:46 $
  * $State: Exp $
  */
 
@@ -1572,13 +1572,14 @@ public class JNLPAppletLauncher extends Applet {
 
         // Enumerate the jar file looking for native libraries
         JarFile jarFile = new JarFile(nativeFile);
-        Set/*<String>*/ nativeLibNames = getNativeLibNames(jarFile);
+        Set/*<String>*/ rootEntries = getRootEntries(jarFile);
+        Set/*<String>*/ nativeLibNames = getNativeLibNames(rootEntries);
 
         // Validate certificates; throws exception upon validation error
-        validateCertificates(jarFile, nativeLibNames);
+        validateCertificates(jarFile, rootEntries);
 
         // Extract native libraries from the jar file
-        extractNativeLibs(jarFile, nativeLibNames);
+        extractNativeLibs(jarFile, rootEntries, nativeLibNames);
 
         if (VERBOSE) {
             System.err.println();
@@ -1731,35 +1732,52 @@ public class JNLPAppletLauncher extends Applet {
 
     /**
      * Enumerate the list of entries in the jar file and return those that are
-     * native library names.
+     * the root entries.
      */
-    private Set/*<String>*/ getNativeLibNames(JarFile jarFile) {
+    private Set/*<String>*/ getRootEntries(JarFile jarFile) {
         if (VERBOSE) {
-            System.err.println("getNativeLibNames:");
+            System.err.println("getRootEntries:");
         }
 
         Set/*<String>*/ names = new HashSet/*<String>*/();
         Enumeration/*<JarEntry>*/ entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = (JarEntry) entries.nextElement();
-            String nativeLibName = entry.getName();
+            String entryName = entry.getName();
 
             if (VERBOSE) {
-                System.err.println("JarEntry : " + nativeLibName);
+                System.err.println("JarEntry : " + entryName);
             }
 
             // only look at entries with no "/"
-            if (nativeLibName.indexOf('/') == -1 &&
-                    nativeLibName.indexOf(File.separatorChar) == -1) {
+            if (entryName.indexOf('/') == -1 &&
+                entryName.indexOf(File.separatorChar) == -1) {
+                names.add(entryName);
+            }
+        }
 
-                String lowerCaseName = nativeLibName.toLowerCase();
+        return names;
+    }
 
-                // Match entries with correct prefix and suffix (ignoring case)
-                if (lowerCaseName.startsWith(nativePrefix) &&
-                        nativeLibName.toLowerCase().endsWith(nativeSuffix)) {
 
-                    names.add(nativeLibName);
-                }
+    /**
+     * Filter the root entries in the jar file and return those that
+     * are native library names.
+     */
+    private Set/*<String>*/ getNativeLibNames(Set/*<String>*/ entryNames) {
+        if (VERBOSE) {
+            System.err.println("getNativeLibNames:");
+        }
+
+        Set/*<String>*/ names = new HashSet/*<String>*/();
+        for (Iterator iter = entryNames.iterator(); iter.hasNext(); ) {
+            String name = (String) iter.next();
+            String lowerCaseName = name.toLowerCase();
+
+            // Match entries with correct prefix and suffix (ignoring case)
+            if (lowerCaseName.startsWith(nativePrefix) &&
+                lowerCaseName.endsWith(nativeSuffix)) {
+                names.add(name);
             }
         }
 
@@ -1847,7 +1865,8 @@ public class JNLPAppletLauncher extends Applet {
      * Extract the specified set of native libraries in the given jar file.
      */
     private void extractNativeLibs(JarFile jarFile,
-            Set/*<String>*/ nativeLibNames) throws IOException {
+                                   Set/*<String>*/ rootEntries,
+                                   Set/*<String>*/ nativeLibNames) throws IOException {
 
         if (DEBUG) {
             System.err.println("extractNativeLibs:");
@@ -1862,7 +1881,11 @@ public class JNLPAppletLauncher extends Applet {
                 System.err.println("JarEntry : " + entryName);
             }
 
-            if (nativeLibNames.contains(entryName)) {
+            // In order to be compatible with Java Web Start, we need
+            // to extract all root entries from the jar file. However,
+            // we only allow direct loading of the previously
+            // discovered native library names.
+            if (rootEntries.contains(entryName)) {
                 // strip prefix & suffix
                 String libName = entryName.substring(nativePrefix.length(),
                         entryName.length() - nativeSuffix.length());
@@ -1876,7 +1899,9 @@ public class JNLPAppletLauncher extends Applet {
                 int numBytesWritten = copyStream(in, out, -1);
                 in.close();
                 out.close();
-                nativeLibMap.put(libName, nativeLib.getAbsolutePath());
+                if (nativeLibNames.contains(entryName)) {
+                    nativeLibMap.put(libName, nativeLib.getAbsolutePath());
+                }
             }
         }
     }
