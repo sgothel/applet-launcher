@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.26 $
- * $Date: 2008/09/26 00:21:46 $
+ * $Revision: 1.27 $
+ * $Date: 2008/09/30 04:51:28 $
  * $State: Exp $
  */
 
@@ -48,6 +48,8 @@ import java.applet.Applet;
 import java.applet.AppletContext;
 import java.applet.AppletStub;
 import java.awt.BorderLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -61,6 +63,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
@@ -939,6 +942,58 @@ public class JNLPAppletLauncher extends Applet {
         sub-applet from JavaScript. */
     public Applet getSubApplet() {
         return subApplet;
+    }
+
+    //----------------------------------------------------------------------
+    // Support for forwarding notifications about dragged-out applets
+    //
+
+    public void appletDragStarted() {
+        try {
+            Method m = getSubApplet().getClass().getMethod("appletDragStarted", null);
+            m.invoke(getSubApplet(), null);
+        } catch (Throwable t) {
+        }
+    }
+
+    public void appletDragFinished() {
+        try {
+            Method m = getSubApplet().getClass().getMethod("appletDragFinished", null);
+            m.invoke(getSubApplet(), null);
+        } catch (Throwable t) {
+        }
+    }
+
+    public void appletRestored() {
+        try {
+            Method m = getSubApplet().getClass().getMethod("appletRestored", null);
+            m.invoke(getSubApplet(), null);
+        } catch (Throwable t) {
+        }
+    }
+
+    public boolean isAppletDragStart(MouseEvent e) {
+        try {
+            Method m = getSubApplet().getClass().getMethod("isAppletDragStart",
+                                                           new Class[] { MouseEvent.class });
+            return ((Boolean) m.invoke(getSubApplet(), new Object[] { e })).booleanValue();
+        } catch (Throwable t) {
+            // Throw an exception back to the Java Plug-In to cause it
+            // to use the default functionality
+            throw new RuntimeException(t);
+        }
+    }
+
+    public void setAppletCloseListener(ActionListener l) {
+        try {
+            Method m = getSubApplet().getClass().getMethod("setAppletCloseListener",
+                                                           new Class[] { ActionListener.class });
+            m.invoke(getSubApplet(), new Object[] { l });
+        } catch (Throwable t) {
+            // Throw an exception back to the Java Plug-In to cause it
+            // to use the default functionality
+            throw new RuntimeException(t);
+        }
     }
 
     /**
