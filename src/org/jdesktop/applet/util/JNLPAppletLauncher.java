@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.27 $
- * $Date: 2008/09/30 04:51:28 $
+ * $Revision: 1.28 $
+ * $Date: 2008/10/21 21:28:49 $
  * $State: Exp $
  */
 
@@ -661,7 +661,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class JNLPAppletLauncher extends Applet {
 
     private static final boolean VERBOSE = false;
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     // Indicated that the applet was successfully initialized
     private boolean isInitOk = false;
@@ -2023,6 +2023,20 @@ public class JNLPAppletLauncher extends Applet {
 
         System.load(fullLibraryName);
     }
+    
+    public static void removeLibrary(String libraryName) {
+        String fullLibraryName = (String) nativeLibMap.get(libraryName);
+        if (fullLibraryName == null) {
+            return;
+        }
+
+        if (DEBUG) {
+            System.err.println("    removing: " + fullLibraryName + "");
+        }
+
+        new File(fullLibraryName).delete();
+        nativeLibMap.remove(libraryName);
+    }
 
     private static String toErrorString(Throwable throwable) {
         StringBuffer errStr = new StringBuffer(throwable.toString());
@@ -2169,6 +2183,25 @@ public class JNLPAppletLauncher extends Applet {
         }
     }
 
+    private static final String _javaVersionProperty =
+            System.getProperty("java.version");
+    private static final boolean _atLeast13 =
+            (!_javaVersionProperty.startsWith("1.2"));
+    private static final boolean _atLeast14 = (_atLeast13 &&
+            !_javaVersionProperty.startsWith("1.3"));
+    private static final boolean _atLeast15 = (_atLeast14 &&
+            !_javaVersionProperty.startsWith("1.4"));
+    private static final String vendorURL =
+            System.getProperty("java.vendor.url");
+    private static final String sunVendorURL = "http://java.sun.com/";
+
+    private static boolean isJavaVersionAtLeast15() {
+        return _atLeast15;
+    }
+
+    private static boolean isJavaVersion142Family() {
+        return _javaVersionProperty.startsWith("1.4.2");
+    }
 
     // -----------------------------------------------------------------------
 
@@ -2257,6 +2290,22 @@ public class JNLPAppletLauncher extends Applet {
 
         // Static initializer for JNLPParser
         static {
+            if (sunVendorURL.equals(vendorURL)) {
+                // set the "javax.xml.parsers.SAXParserFactory" to the default
+                // implementation, so we won't pull down all the JARs listed
+                // in the archive tag to look for a SAXParserFactory implementation
+                if (isJavaVersionAtLeast15()) {
+
+                    System.setProperty("javax.xml.parsers.SAXParserFactory",
+                            "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
+
+                } else if (isJavaVersion142Family()) {
+
+                    System.setProperty("javax.xml.parsers.SAXParserFactory",
+                            "org.apache.crimson.jaxp.SAXParserFactoryImpl");
+                }
+            }
+
             factory = SAXParserFactory.newInstance();
             systemOsName = System.getProperty("os.name").toLowerCase();
             systemOsArch = System.getProperty("os.arch").toLowerCase();
