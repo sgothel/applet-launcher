@@ -37,8 +37,8 @@
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
  *
- * $Revision: 1.28 $
- * $Date: 2008/10/21 21:28:49 $
+ * $Revision: 1.29 $
+ * $Date: 2008/10/21 21:33:50 $
  * $State: Exp $
  */
 
@@ -1966,7 +1966,10 @@ public class JNLPAppletLauncher extends Applet {
      */
     private void startSubApplet() {
         try {
-            subApplet = (Applet)Class.forName(subAppletClassName).newInstance();
+            subApplet = (Applet)
+                Class.forName(subAppletClassName,
+                              true,
+                              Thread.currentThread().getContextClassLoader()).newInstance(); 
             subApplet.setStub(new AppletStubProxy());
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
