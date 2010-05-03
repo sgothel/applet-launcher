@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Implementation-Title: Applet Launcher Utility
 Implementation-Version: 0.9
-Implementation-Vendor: Sun Microsystems, Inc.
-Implementation-Vendor-Id: com.sun
+Implementation-Vendor: JogAmp community
+Implementation-Vendor-Id: com.jogamp
 Extension-Name: org.jdesktop.applet.util
+Trusted-Library: true

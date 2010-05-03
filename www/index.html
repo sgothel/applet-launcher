@@ -291,14 +291,15 @@
  <code>noddraw.check</code> parameter to disable the use of
  DirectDraw since using JOGL implies the use of OpenGL.
 
- <pre>
- &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
+<pre>
+&lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
       width=600
       height=400
-      archive="http://download.java.net/media/applet-launcher/applet-launcher.jar,
-               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,
-               http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,
-               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar"&gt;
+      archive="http://jogamp.org/deployment/util/applet-launcher.jar,
+               http://jogamp.org/deployment/webstart/nativewindow.all.jar,
+               http://jogamp.org/deployment/webstart/jogl.all.jar,
+               http://jogamp.org/deployment/webstart/gluegen-rt.jar,
+               http://jogamp.org/deployment/webstart/jogl-demos.jar"&gt;
    &lt;param name="codebase_lookup" value="false"&gt;
    &lt;param name="subapplet.classname" value="demos.applets.GearsApplet"&gt;
    &lt;param name="subapplet.displayname" value="JOGL Gears Applet"&gt;
@@ -306,9 +307,11 @@
    &lt;param name="progressbar" value="true"&gt;
    &lt;param name="jnlpNumExtensions" value="1"&gt;
    &lt;param name="jnlpExtension1"
-          value="http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp"&gt;
- &lt;/applet&gt;
- </pre>
+          value="http://jogamp.org/deployment/webstart/jogl-core.jnlp"&gt;
+   &lt;param name="java_arguments" value="-Dsun.java2d.noddraw=true"&gt;
+   &lt;param name="jnlp_href" value="applet-gears.jnlp"&gt;
+&lt;/applet&gt;
+</pre>
 
  <p>
 
@@ -318,14 +321,15 @@
  <code>jogl-demos.jar</code> and <code>joal-demos.jar</code>. Note
  again the use of the <code>noddraw.check</code> parameter.
 
- <pre>
- &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
+<pre>
+&lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
       width=600
       height=400
-      archive="http://download.java.net/media/applet-launcher/applet-launcher.jar,
-               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,
-               http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,
-               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl-demos.jar,
+      archive="http://jogamp.org/deployment/util/applet-launcher.jar,
+               http://jogamp.org/deployment/webstart/nativewindow.all.jar,
+               http://jogamp.org/deployment/webstart/jogl.all.jar,
+               http://jogamp.org/deployment/webstart/gluegen-rt.jar,
+               http://jogamp.org/deployment/webstart/jogl-demos.jar,
                http://download.java.net/media/joal/webstart/joal.jar,
                http://download.java.net/media/joal/webstart/joal-demos.jar"&gt;
    &lt;param name="codebase_lookup" value="false"&gt;
@@ -335,40 +339,11 @@
    &lt;param name="progressbar" value="true"&gt;
    &lt;param name="jnlpNumExtensions" value="2"&gt;
    &lt;param name="jnlpExtension1"
-          value="http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp"&gt;
+          value="http://jogamp.org/deployment/webstart/jogl-core.jnlp"&gt;
    &lt;param name="jnlpExtension2"
           value="http://download.java.net/media/joal/webstart/joal.jnlp"&gt;
- &lt;/applet&gt;
- </pre>
-
- <p>
- An applet using Java 3D as an extension:
-
- <pre>
- &lt;applet code="org.jdesktop.applet.util.JNLPAppletLauncher"
-      width=400
-      height=300
-      archive="myapplet.jar,
-               http://download.java.net/media/applet-launcher/applet-launcher.jar,
-               http://download.java.net/media/java3d/webstart/release/j3d/latest/j3dcore.jar,
-               http://download.java.net/media/java3d/webstart/release/j3d/latest/j3dutils.jar,
-               http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar,
-               http://download.java.net/media/gluegen/webstart/gluegen-rt.jar,
-               http://download.java.net/media/java3d/webstart/release/vecmath/latest/vecmath.jar"&gt;
-   &lt;param name="codebase_lookup" value="false"&gt;
-   &lt;param name="subapplet.classname" value="mypkg.MyApplet"&gt;
-   &lt;param name="subapplet.displayname" value="My Java 3D Applet"&gt;
-   &lt;param name="jnlpNumExtensions" value="1"&gt;
-   &lt;param name="jnlpExtension1" value="http://download.java.net/media/java3d/webstart/release/java3d-latest.jnlp"&gt;
-   &lt;param name="progressbar" value="true"&gt;
-   &lt;param name="noddraw.check" value="true"&gt;
- &lt;/applet&gt;
- </pre>
-
- <p>
- Note that the JOGL jar files are also included in this example. This is
- necessary in order to run on Mac OS X, for which Java 3D always uses
- JOGL to render.
+&lt;/applet&gt;
+</pre>
 
  <h2> Locations of Standard Extensions </h2>
 
@@ -384,49 +359,12 @@
 
  The master jar file for the JNLPAppletLauncher is located at the following URL:
  <pre>
- http://download.java.net/media/applet-launcher/applet-launcher.jar
+ http://jogamp.org/deployment/util/applet-launcher.jar
  </pre>
 
  <p>
 
  This jar needs to be added to your archive parameter.
-
- <h4>Java 3D</h4>
-
- <p>
-
- Java 3D 1.5.1 and later supports the
- JNLPAppletLauncher. You will need to add the following URLs to your
- archive parameter:
-
- <pre>
- http://download.java.net/media/java3d/webstart/release/j3d/latest/j3dcore.jar
- http://download.java.net/media/java3d/webstart/release/j3d/latest/j3dutils.jar
- http://download.java.net/media/java3d/webstart/release/vecmath/latest/vecmath.jar
- </pre>
-
- Then add the following to one of your <code>jnlpExtension</code> parameters:
-
- <pre>
- http://download.java.net/media/java3d/webstart/release/java3d-latest.jnlp
- </pre>
-
- If you want to deploy your applet on Mac OS X, you will also need to
- include JOGL by adding the following URLs to your archive parameter:
-
- <pre>
- http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar
- http://download.java.net/media/gluegen/webstart/gluegen-rt.jar
- </pre>
-
- Note that this will only work if Java 3D is not installed into the JRE as an
- extension. Since Apple ships their JRE with Java 3D pre-installed, the
- end-user must uninstall Java 3D in order for Java 3D applets to work on Mac.
- <p>
-
- Note that the Java 3D .jnlp extension will automatically pull in the
- native code associated with JOGL and the GlueGen runtime, so you don't have
- to separately refer to those .jnlp files.
 
  <h4>JOGL</h4>
 
@@ -436,7 +374,8 @@
  need to add the following URL to your archive parameter:
 
  <pre>
- http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jar
+   http://jogamp.org/deployment/webstart/nativewindow.all.jar
+   http://jogamp.org/deployment/webstart/jogl.all.jar
  </pre>
 
  <p>
@@ -445,7 +384,7 @@
  add the following URL to your archive parameter:
 
  <pre>
- http://download.java.net/media/gluegen/webstart/gluegen-rt.jar
+   http://jogamp.org/deployment/webstart/gluegen-rt.jar
  </pre>
 
  <p>
@@ -454,7 +393,7 @@
  <code>jnlpExtension</code> parameters:
 
  <pre>
- http://download.java.net/media/jogl/builds/archive/jsr-231-webstart-current/jogl.jnlp
+  http://jogamp.org/deployment/webstart/jogl-core.jnlp
  </pre>
 
  <p>
@@ -471,7 +410,7 @@
  to add the following URL to your archive parameter:
 
  <pre>
- http://download.java.net/media/joal/webstart/joal.jar
+ http://jogamp.org/deployment/webstart/joal.jar
  </pre>
 
  <p>
@@ -480,7 +419,7 @@
  also need to add the following URL to your archive parameter:
 
  <pre>
- http://download.java.net/media/gluegen/webstart/gluegen-rt.jar
+ http://jogamp.org/deployment/webstart/gluegen-rt.jar
  </pre>
 
  <p>
@@ -494,7 +433,7 @@
  <code>jnlpExtension</code> parameters:
 
  <pre>
- http://download.java.net/media/joal/webstart/joal.jnlp
+ http://jogamp.org/deployment/webstart/joal.jnlp
  </pre>
 
  <p>
