@@ -64,6 +64,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
@@ -1372,7 +1373,14 @@ public class JNLPAppletLauncher extends Applet {
                 if (urlString == null || urlString.length() == 0) {
                     throw new IllegalArgumentException("Missing " + paramName + " parameter");
                 }
-                URL url = new URL(urlString);
+                URL url = null;
+                try {
+                    // just try if user provided string contains protocol
+                    url = new URL(urlString);
+                } catch (MalformedURLException mue) {
+                    // assume relative URL to documentbase
+                    url = new URL(getDocumentBase(), urlString);
+                }
                 urls.add(url);
             }
 
